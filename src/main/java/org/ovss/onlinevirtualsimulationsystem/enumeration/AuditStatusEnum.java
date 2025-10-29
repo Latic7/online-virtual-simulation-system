@@ -6,7 +6,7 @@ package org.ovss.onlinevirtualsimulationsystem.enumeration;
  * 1: REJECTED - 审核被驳回
  * 2: APPROVED - 审核已通过
  */
-public enum ENUM_AuditStatus {
+public enum AuditStatusEnum {
     PENDING,
     REJECTED,
     APPROVED

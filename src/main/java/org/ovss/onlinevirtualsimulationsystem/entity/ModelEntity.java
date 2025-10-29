@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.ovss.onlinevirtualsimulationsystem.enumeration.ENUM_AuditStatus;
+import org.ovss.onlinevirtualsimulationsystem.enumeration.AuditStatusEnum;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "model")
-public class E_Model {
+public class ModelEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ModelID")
@@ -30,12 +30,12 @@ public class E_Model {
 
     @ManyToOne
     @JoinColumn(name = "Uploader", nullable = false)
-    private E_User uploader;
+    private UserEntity uploader;
 
     @Column(name = "UploadTime", nullable = false)
     private LocalDateTime uploadTime;
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "AuditStatus", nullable = false)
-    private ENUM_AuditStatus auditStatus;
+    private AuditStatusEnum auditStatus;
 }

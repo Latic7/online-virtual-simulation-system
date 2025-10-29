@@ -6,7 +6,7 @@ package org.ovss.onlinevirtualsimulationsystem.enumeration;
  * 1: USER - 正式用户
  * 2: ADMIN - 管理员
  */
-public enum ENUM_UserAuthority {
+public enum UserAuthorityEnum {
     GUEST,
     USER,
     ADMIN

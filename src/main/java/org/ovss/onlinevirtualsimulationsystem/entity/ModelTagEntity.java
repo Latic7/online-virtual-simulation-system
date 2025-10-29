@@ -12,18 +12,18 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Entity
 @Table(name = "modeltag")
-@IdClass(E_ModelTag.ModelTagId.class)
-public class E_ModelTag {
+@IdClass(ModelTagEntity.ModelTagId.class)
+public class ModelTagEntity {
 
     @Id
     @ManyToOne
     @JoinColumn(name = "ModelID")
-    private E_Model model;
+    private ModelEntity model;
 
     @Id
     @ManyToOne
     @JoinColumn(name = "TagID")
-    private E_Tag tag;
+    private TagEntity tag;
 
     public static class ModelTagId implements Serializable {
         private Long model;

@@ -4,14 +4,14 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.ovss.onlinevirtualsimulationsystem.enumeration.ENUM_UserAuthority;
+import org.ovss.onlinevirtualsimulationsystem.enumeration.UserAuthorityEnum;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "user")
-public class E_User {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "UserID")
@@ -22,7 +22,7 @@ public class E_User {
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "UserAuthority", nullable = false)
-    private ENUM_UserAuthority userAuthority;
+    private UserAuthorityEnum userAuthority;
 
     @Column(name = "Password", nullable = false)
     private String password;
