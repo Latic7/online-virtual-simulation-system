@@ -3,7 +3,7 @@ package org.ovss.onlinevirtualsimulationsystem.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.ovss.onlinevirtualsimulationsystem.dto.DTO_User;
+import org.ovss.onlinevirtualsimulationsystem.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private Long expiration;
 
-    public String generateToken(DTO_User userDto) {
+    public String generateToken(UserDTO userDto) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userDto.getUserId());
         claims.put("userAuthority", userDto.getUserAuthority().toString());

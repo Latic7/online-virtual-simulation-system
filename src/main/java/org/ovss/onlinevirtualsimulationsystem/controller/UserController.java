@@ -1,5 +1,6 @@
 package org.ovss.onlinevirtualsimulationsystem.controller;
 
+import org.ovss.onlinevirtualsimulationsystem.dto.LoginResponseDTO;
 import org.ovss.onlinevirtualsimulationsystem.dto.UserDTO;
 import org.ovss.onlinevirtualsimulationsystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,8 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<UserDTO> login(@RequestBody UserDTO loginRequest) {
-        UserDTO user = userService.login(loginRequest.getUserName(), loginRequest.getPassword());
-        return ResponseEntity.ok(user);
+    public ResponseEntity<?> login(@RequestBody UserDTO loginRequest) {
+        String jwt = userService.login(loginRequest.getUserName(), loginRequest.getPassword());
+        return ResponseEntity.ok(new LoginResponseDTO(jwt));
     }
 }
