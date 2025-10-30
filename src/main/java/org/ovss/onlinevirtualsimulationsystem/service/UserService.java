@@ -1,5 +1,6 @@
 package org.ovss.onlinevirtualsimulationsystem.service;
 
+import org.ovss.onlinevirtualsimulationsystem.dto.LoginResponseDTO;
 import org.ovss.onlinevirtualsimulationsystem.dto.UserDTO;
 import org.ovss.onlinevirtualsimulationsystem.entity.UserEntity;
 import org.ovss.onlinevirtualsimulationsystem.exception.IncorrectPasswordException;
@@ -24,7 +25,7 @@ public class UserService implements UserDetailsService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    public String login(String userName, String password) {
+    public LoginResponseDTO login(String userName, String password) {
         UserEntity user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new UserNotFoundException("用户名不存在"));
 
@@ -32,7 +33,22 @@ public class UserService implements UserDetailsService {
             throw new IncorrectPasswordException("密码不正确");
         }
         UserDTO userDto = new UserDTO(user.getUserId(), user.getUserName(), user.getUserAuthority());
-        return jwtUtil.generateToken(userDto);
+        String accessToken = jwtUtil.generateToken(userDto);
+        String refreshToken = jwtUtil.generateRefreshToken(userDto);
+
+        return new LoginResponseDTO(accessToken, refreshToken);
+    }
+
+    public String refreshToken(String refreshToken) {
+        if (jwtUtil.validateRefreshToken(refreshToken)) {
+            String username = jwtUtil.extractUsername(refreshToken);
+            UserEntity user = userRepository.findByUserName(username)
+                    .orElseThrow(() -> new UserNotFoundException("用户不存在"));
+            UserDTO userDto = new UserDTO(user.getUserId(), user.getUserName(), user.getUserAuthority());
+            return jwtUtil.generateToken(userDto);
+        } else {
+            throw new RuntimeException("Refresh token is expired or invalid");
+        }
     }
 
     @Override

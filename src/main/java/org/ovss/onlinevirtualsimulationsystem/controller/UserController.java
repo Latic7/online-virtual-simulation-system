@@ -1,7 +1,10 @@
 package org.ovss.onlinevirtualsimulationsystem.controller;
 
+import org.ovss.onlinevirtualsimulationsystem.dto.LoginRequestDTO;
 import org.ovss.onlinevirtualsimulationsystem.dto.LoginResponseDTO;
-import org.ovss.onlinevirtualsimulationsystem.dto.UserDTO;
+// ... existing code ...
+import org.ovss.onlinevirtualsimulationsystem.dto.RefreshTokenRequestDTO;
+import org.ovss.onlinevirtualsimulationsystem.dto.RefreshTokenResponseDTO;
 import org.ovss.onlinevirtualsimulationsystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +21,16 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserDTO loginRequest) {
-        String jwt = userService.login(loginRequest.getUserName(), loginRequest.getPassword());
-        return ResponseEntity.ok(new LoginResponseDTO(jwt));
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO loginRequest) {
+        LoginResponseDTO response = userService.login(loginRequest.getUserName(), loginRequest.getPassword());
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequestDTO request) {
+// ... existing code ...
+
+        String newAccessToken = userService.refreshToken(request.getRefreshToken());
+        return ResponseEntity.ok(new RefreshTokenResponseDTO(newAccessToken));
     }
 }

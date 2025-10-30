@@ -22,11 +22,23 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private Long expiration;
 
+    @Value("${jwt.refresh-expiration}")
+    private Long refreshExpiration;
+
     public String generateToken(UserDTO userDto) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userDto.getUserId());
         claims.put("userAuthority", userDto.getUserAuthority().toString());
         return createToken(claims, userDto.getUserName());
+    }
+
+    public String generateRefreshToken(UserDTO userDto) {
+        return Jwts.builder()
+                .setSubject(userDto.getUserName())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpiration * 1000))
+                .signWith(SignatureAlgorithm.HS256, secret)
+                .compact();
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
@@ -42,6 +54,10 @@ public class JwtUtil {
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public Boolean validateRefreshToken(String token) {
+        return !isTokenExpired(token);
     }
 
     public String extractUsername(String token) {
@@ -65,4 +81,3 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 }
-
