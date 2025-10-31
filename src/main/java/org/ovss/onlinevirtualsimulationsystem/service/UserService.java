@@ -27,10 +27,10 @@ public class UserService implements UserDetailsService {
 
     public LoginResponseDTO login(String userName, String password) {
         UserEntity user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new UserNotFoundException("用户名不存在"));
+                .orElseThrow(() -> new UserNotFoundException("User does not exist"));
 
         if (!user.getPassword().equals(password)) {
-            throw new IncorrectPasswordException("密码不正确");
+            throw new IncorrectPasswordException("Wrong password");
         }
         UserDTO userDto = new UserDTO(user.getUserId(), user.getUserName(), user.getUserAuthority());
         String accessToken = jwtUtil.generateToken(userDto);

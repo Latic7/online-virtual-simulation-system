@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+        .top-right-nav {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .top-right-nav span {
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        .top-right-nav button {
+            margin-left: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Welcome to the Online Virtual Simulation System!</h1>
+<p>This is the public home page.</p>
+
+<div class="top-right-nav">
+    <!-- If user is authenticated (username is not null) -->
+    <div th:if="${username}">
+        <span th:text="'Welcome, ' + ${username}"></span>
+        <button onclick="location.href='/profile'">Profile</button>
+        <button onclick="handleLogout()">Logout</button>
+    </div>
+
+    <!-- If user is anonymous (username is null) -->
+    <div th:unless="${username}">
+        <button onclick="location.href='/login'">Login</button>
+        <button onclick="location.href='/register'">Register</button>
+    </div>
+</div>
+
+<script>
+    async function handleLogout() {
+        try {
+            const response = await fetch('/api/users/logout', {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                console.log('Logout successful');
+                // Redirect to login page after successful logout
+                window.location.href = '/login';
+            } else {
+                console.error('Logout failed:', response.statusText);
+                alert('注销失败，请稍后再试。');
+            }
+        } catch (error) {
+            console.error('Error during logout:', error);
+            alert('注销时发生网络错误。');
+        }
+    }
+</script>
+
+</body>
+</html>

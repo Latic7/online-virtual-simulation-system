@@ -20,7 +20,7 @@ public class UserEntity {
     @Column(name = "UserName", nullable = false)
     private String userName;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "UserAuthority", nullable = false)
     private UserAuthorityEnum userAuthority;
 

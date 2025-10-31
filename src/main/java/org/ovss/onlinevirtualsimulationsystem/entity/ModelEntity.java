@@ -35,7 +35,7 @@ public class ModelEntity {
     @Column(name = "UploadTime", nullable = false)
     private LocalDateTime uploadTime;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "AuditStatus", nullable = false)
     private AuditStatusEnum auditStatus;
 }

@@ -1,5 +1,6 @@
 package org.ovss.onlinevirtualsimulationsystem.config;
 
+import org.ovss.onlinevirtualsimulationsystem.enumeration.UserAuthorityEnum;
 import org.ovss.onlinevirtualsimulationsystem.filter.JwtRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -35,8 +36,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/login", "/api/users/refresh", "/login").permitAll()
+                        .requestMatchers("/api/users/login", "/api/users/refresh", "/login", "/home", "/error").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**").permitAll()
+                        // Add rules for guests, users, and admins
+                        .requestMatchers("/api/public/**", "/models/view/**").permitAll() // Publicly accessible endpoints
+                        .requestMatchers("/api/users/me", "/api/models/my-models/**").hasAnyAuthority(UserAuthorityEnum.USER.name(), UserAuthorityEnum.ADMIN.name()) // User and Admin
+                        .requestMatchers("/api/admin/**").hasAuthority(UserAuthorityEnum.ADMIN.name()) // Admin only
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
