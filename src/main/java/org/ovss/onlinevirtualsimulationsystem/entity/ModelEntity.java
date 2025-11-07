@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.ovss.onlinevirtualsimulationsystem.enumeration.AuditStatusEnum;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -38,4 +39,7 @@ public class ModelEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "AuditStatus", nullable = false)
     private AuditStatusEnum auditStatus;
+
+    @OneToMany(mappedBy = "model")
+    private Set<ModelTagEntity> tags;
 }

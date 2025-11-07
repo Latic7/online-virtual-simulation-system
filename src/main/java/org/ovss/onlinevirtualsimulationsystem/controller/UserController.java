@@ -2,8 +2,7 @@ package org.ovss.onlinevirtualsimulationsystem.controller;
 
 import org.ovss.onlinevirtualsimulationsystem.dto.LoginRequestDTO;
 import org.ovss.onlinevirtualsimulationsystem.dto.LoginResponseDTO;
-import org.ovss.onlinevirtualsimulationsystem.dto.RefreshTokenRequestDTO;
-import org.ovss.onlinevirtualsimulationsystem.dto.RefreshTokenResponseDTO;
+import org.ovss.onlinevirtualsimulationsystem.dto.RegistrationRequestDTO;
 import org.ovss.onlinevirtualsimulationsystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
@@ -18,6 +17,12 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody RegistrationRequestDTO registrationRequest) {
+        userService.register(registrationRequest);
+        return ResponseEntity.ok("User registered successfully");
+    }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO loginRequest, HttpServletResponse httpServletResponse) {
@@ -48,29 +53,6 @@ public class UserController {
         httpServletResponse.addHeader("Set-Cookie", accessTokenCookie.toString());
 
         // Also clear the refresh token cookie, just in case it exists
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh-token", "")
-                .httpOnly(true)
-                .path("/")
-                .maxAge(0)
-                .sameSite("Lax")
-                .build();
-        httpServletResponse.addHeader("Set-Cookie", refreshTokenCookie.toString());
-
         return ResponseEntity.ok("Logout successful");
-    }
-
-    @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(@CookieValue(name = "jwt-token", required = false) String token, @RequestBody(required = false) RefreshTokenRequestDTO request) {
-        String refreshToken = token;
-        if (refreshToken == null && request != null) {
-            refreshToken = request.getRefreshToken();
-        }
-
-        if (refreshToken == null) {
-            return ResponseEntity.badRequest().body("Refresh token not found");
-        }
-
-        String newAccessToken = userService.refreshToken(refreshToken);
-        return ResponseEntity.ok(new RefreshTokenResponseDTO(newAccessToken));
     }
 }

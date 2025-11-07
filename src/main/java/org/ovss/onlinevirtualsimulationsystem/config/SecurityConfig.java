@@ -36,8 +36,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/login", "/api/users/refresh", "/login", "/home", "/error").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**").permitAll()
+                        .requestMatchers("/api/users/login", "/login", "/home", "/error", "/logout", "/register", "/api/users/register").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/thumbnails/**", "/models/**").permitAll()
                         // Add rules for guests, users, and admins
                         .requestMatchers("/api/public/**", "/models/view/**").permitAll() // Publicly accessible endpoints
                         .requestMatchers("/api/users/me", "/api/models/my-models/**").hasAnyAuthority(UserAuthorityEnum.USER.name(), UserAuthorityEnum.ADMIN.name()) // User and Admin

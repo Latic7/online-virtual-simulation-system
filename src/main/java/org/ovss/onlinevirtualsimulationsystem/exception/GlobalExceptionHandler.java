@@ -22,6 +22,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleUserAlreadyExistsException(UserAlreadyExistsException ex, WebRequest request) {
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
     // You can add more exception handlers here for other custom exceptions
 
     @ExceptionHandler(Exception.class)
@@ -30,4 +36,3 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
-

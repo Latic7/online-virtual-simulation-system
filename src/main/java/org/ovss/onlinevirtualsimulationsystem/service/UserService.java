@@ -1,9 +1,12 @@
 package org.ovss.onlinevirtualsimulationsystem.service;
 
 import org.ovss.onlinevirtualsimulationsystem.dto.LoginResponseDTO;
+import org.ovss.onlinevirtualsimulationsystem.dto.RegistrationRequestDTO;
 import org.ovss.onlinevirtualsimulationsystem.dto.UserDTO;
 import org.ovss.onlinevirtualsimulationsystem.entity.UserEntity;
+import org.ovss.onlinevirtualsimulationsystem.enumeration.UserAuthorityEnum;
 import org.ovss.onlinevirtualsimulationsystem.exception.IncorrectPasswordException;
+import org.ovss.onlinevirtualsimulationsystem.exception.UserAlreadyExistsException;
 import org.ovss.onlinevirtualsimulationsystem.exception.UserNotFoundException;
 import org.ovss.onlinevirtualsimulationsystem.repository.UserRepository;
 import org.ovss.onlinevirtualsimulationsystem.util.JwtUtil;
@@ -25,6 +28,18 @@ public class UserService implements UserDetailsService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    public void register(RegistrationRequestDTO registrationRequest) {
+        if (userRepository.findByUserName(registrationRequest.getUsername()).isPresent()) {
+            throw new UserAlreadyExistsException("Username is already taken");
+        }
+
+        UserEntity newUser = new UserEntity();
+        newUser.setUserName(registrationRequest.getUsername());
+        newUser.setPassword(registrationRequest.getPassword()); // In a real app, hash this password
+        newUser.setUserAuthority(UserAuthorityEnum.USER);
+        userRepository.save(newUser);
+    }
+
     public LoginResponseDTO login(String userName, String password) {
         UserEntity user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new UserNotFoundException("User does not exist"));
@@ -34,21 +49,8 @@ public class UserService implements UserDetailsService {
         }
         UserDTO userDto = new UserDTO(user.getUserId(), user.getUserName(), user.getUserAuthority());
         String accessToken = jwtUtil.generateToken(userDto);
-        String refreshToken = jwtUtil.generateRefreshToken(userDto);
 
-        return new LoginResponseDTO(accessToken, refreshToken);
-    }
-
-    public String refreshToken(String refreshToken) {
-        if (jwtUtil.validateRefreshToken(refreshToken)) {
-            String username = jwtUtil.extractUsername(refreshToken);
-            UserEntity user = userRepository.findByUserName(username)
-                    .orElseThrow(() -> new UserNotFoundException("用户不存在"));
-            UserDTO userDto = new UserDTO(user.getUserId(), user.getUserName(), user.getUserAuthority());
-            return jwtUtil.generateToken(userDto);
-        } else {
-            throw new RuntimeException("Refresh token is expired or invalid");
-        }
+        return new LoginResponseDTO(accessToken);
     }
 
     @Override

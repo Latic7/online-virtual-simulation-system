@@ -5,45 +5,237 @@
     <meta charset="UTF-8">
     <style>
         body {
-            font-family: sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f9;
+            color: #333;
         }
-        .top-right-nav {
-            position: absolute;
-            top: 15px;
-            right: 20px;
+        .navbar {
+            background-color: #fff;
+            padding: 15px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-brand {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            text-decoration: none;
+        }
+        .nav-links {
             display: flex;
             align-items: center;
         }
-        .top-right-nav span {
+        .nav-links span {
             margin-right: 15px;
             font-weight: bold;
         }
-        .top-right-nav button {
+        .nav-links button {
             margin-left: 10px;
-            padding: 8px 12px;
+            padding: 8px 15px;
             cursor: pointer;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            border-radius: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .nav-links button:hover {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+        }
+        .container {
+            padding: 30px;
+        }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .controls label {
+            margin-right: 10px;
+        }
+        .controls select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .model-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .model-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .model-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .model-info {
+            padding: 15px;
+        }
+        .model-info h3 {
+            margin: 0 0 10px;
+            font-size: 1.1em;
+        }
+        .model-meta {
+            font-size: 0.85em;
+            color: #666;
+        }
+        .model-meta p {
+            margin: 5px 0;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+        }
+
+        .modal-content button {
+            display: block;
+            width: 90%;
+            padding: 12px 20px;
+            margin: 10px auto;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        .modal-content .login-btn {
+            background-color: #007bff;
+            color: white;
+            border: 1px solid #007bff;
+        }
+
+        .modal-content .register-btn {
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .modal-content .register-note {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
 
-<h1>Welcome to the Online Virtual Simulation System!</h1>
-<p>This is the public home page.</p>
-
-<div class="top-right-nav">
-    <!-- If user is authenticated (username is not null) -->
-    <div th:if="${username}">
-        <span th:text="'Welcome, ' + ${username}"></span>
-        <button onclick="location.href='/profile'">Profile</button>
-        <button onclick="handleLogout()">Logout</button>
-    </div>
-
-    <!-- If user is anonymous (username is null) -->
-    <div th:unless="${username}">
-        <button onclick="location.href='/login'">Login</button>
-        <button onclick="location.href='/register'">Register</button>
+<div class="navbar">
+    <a href="/home" class="navbar-brand">在线虚拟仿真系统OVSS</a>
+    <div class="nav-links">
+        <!-- If user is authenticated -->
+        <div th:if="${username}">
+            <span th:text="'欢迎，' + ${username}"></span>
+            <button onclick="location.href='/profile'">个人主页</button>
+            <button onclick="handleLogout()">登出</button>
+        </div>
+        <!-- If user is anonymous -->
+        <div th:unless="${username}">
+            <button onclick="location.href='/login'">登录</button>
+            <button onclick="location.href='/register'">注册</button>
+        </div>
     </div>
 </div>
+
+<div class="container">
+    <div class="controls">
+        <form id="filterForm" th:action="@{/home}" method="get">
+            <label for="sort">排序方式:</label>
+            <select id="sort" name="sort" onchange="document.getElementById('filterForm').submit();">
+                <option value="uploadTime,desc" th:selected="${sort.equalsIgnoreCase('uploadTime,desc')}">最新上传</option>
+                <option value="uploadTime,asc" th:selected="${sort.equalsIgnoreCase('uploadTime,asc')}">最早上传</option>
+            </select>
+
+            <input type="text" name="search" placeholder="搜索模型、作者或标签..." th:value="${search}" style="margin-left: 20px; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+            <button type="submit" style="padding: 8px 15px; cursor: pointer; border: 1px solid #ddd; background-color: #fff; border-radius: 20px;">搜索</button>
+        </form>
+    </div>
+
+    <div class="model-grid">
+        <a th:each="model : ${models}" th:href="@{/models/view/{modelId}(modelId=${model.modelId})}" class="model-card">
+            <img th:src="${model.thumbnailAddress}" alt="Thumbnail"/>
+            <div class="model-info">
+                <h3 th:text="${model.modelName}">Model Name</h3>
+                <div class="model-meta">
+                    <p th:text="'上传者：' + ${model.uploaderName}">Uploader</p>
+                    <p th:text="'上传时间：' + ${#temporals.format(model.uploadTime, 'yyyy-MM-dd')}">Upload Date</p>
+                    <p th:text="'标签：' + ${model.tags}">Tags</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Login/Register Modal -->
+<div id="loginModal" class="modal" th:if="${username == null}">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>欢迎来到在线虚拟仿真系统OVSS</h2>
+        <p>登录以与他人分享、交流你的作品！</p>
+        <button class="login-btn" onclick="location.href='/login'">登录</button>
+        <p class="register-note">还没有账号？立即注册</p>
+        <button class="register-btn" onclick="location.href='/register'">注册</button>
+    </div>
+</div>
+
 
 <script>
     async function handleLogout() {
@@ -54,7 +246,6 @@
 
             if (response.ok) {
                 console.log('Logout successful');
-                // Redirect to login page after successful logout
                 window.location.href = '/login';
             } else {
                 console.error('Logout failed:', response.statusText);
@@ -65,6 +256,30 @@
             alert('注销时发生网络错误。');
         }
     }
+
+    // Modal script
+    window.onload = function() {
+        const modal = document.getElementById('loginModal');
+        if (modal) {
+            const hasSeenModal = sessionStorage.getItem('hasSeenLoginModal');
+            if (!hasSeenModal) {
+                modal.style.display = 'block';
+            }
+
+            const closeButton = document.querySelector('.close-button');
+            closeButton.onclick = function() {
+                modal.style.display = 'none';
+                sessionStorage.setItem('hasSeenLoginModal', 'true');
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                    sessionStorage.setItem('hasSeenLoginModal', 'true');
+                }
+            }
+        }
+    };
 </script>
 
 </body>
