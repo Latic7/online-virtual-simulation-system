@@ -28,6 +28,7 @@ public interface ModelRepository extends JpaRepository<ModelEntity, Long> {
             "LEFT JOIN m.tags mt " +
             "LEFT JOIN mt.tag t " +
             "WHERE (:status IS NULL OR m.auditStatus = :status) AND (" +
+            "(:search IS NULL OR :search = '') OR " +
             "LOWER(m.modelName) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(u.userName) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(t.tagName) LIKE LOWER(CONCAT('%', :search, '%')))")
@@ -35,13 +36,6 @@ public interface ModelRepository extends JpaRepository<ModelEntity, Long> {
 
     @Query("SELECT m FROM ModelEntity m WHERE m.isLive = true AND m.auditStatus = 'APPROVED'")
     List<ModelEntity> findAll(Sort sort);
-
-    @Query("SELECT m FROM ModelEntity m WHERE m.modelId = :modelId AND m.isLive = true AND m.auditStatus = 'APPROVED'")
-    Optional<ModelEntity> findByIdAndIsLiveTrueAndAuditStatusApproved(@Param("modelId") Long modelId);
-
-    List<ModelEntity> findByAuditStatus(AuditStatusEnum status, Sort sort);
-
-    List<ModelEntity> findByUploader_UserId(Long userId, Sort sort);
 
     @Query("SELECT m FROM ModelEntity m WHERE m.uploader.userId = :userId AND (:status IS NULL OR m.auditStatus = :status)")
     List<ModelEntity> findByUploader_UserIdAndAuditStatus(@Param("userId") Long userId, @Param("status") AuditStatusEnum status, Sort sort);

@@ -148,6 +148,17 @@
         .status-PENDING { background-color: #ffc107; color: #333 }
         .status-APPROVED { background-color: #28a745; }
         .status-REJECTED { background-color: #dc3545; }
+        .tag-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: #fff;
+            display: inline-block;
+            margin-top: 5px;
+            background-color: #007bff;
+            margin-right: 5px;
+        }
 
         /* Modal Styles */
         .modal {
@@ -242,19 +253,19 @@
             <button type="submit">筛选</button>
         </form>
     </div>
-
     <div class="model-grid">
         <div th:each="model : ${models}" class="model-card">
-            <a th:href="@{/models/{modelId}(modelId=${model.modelId})}" style="text-decoration: none; color: inherit; display: block;">
-                <div>
-                    <img th:src="${model.thumbnailUrl + '?t=' + #dates.createNow().getTime()}" alt="Thumbnail"/>
-                    <div class="model-info">
-                        <h3 th:text="${model.modelName}">Model Name</h3>
-                        <div class="model-meta">
-                            <p th:text="'上传时间：' + ${#temporals.format(model.uploadTime, 'yyyy-MM-dd')}"></p>
-                            <p th:text="'标签：' + ${model.tags}"></p>
-                            <p>状态: <span class="status-badge" th:classappend="'status-' + ${model.auditStatus}" th:text="${model.auditStatus}"></span></p>
-                        </div>
+            <a th:href="@{/models/{modelId}(modelId=${model.modelId})}" style="text-decoration: none; color: inherit;">
+                <img th:src="${model.thumbnailUrl + '?t=' + #dates.createNow().getTime()}" alt="Thumbnail"/>
+                <div class="model-info">
+                    <h3 th:text="${model.modelName}">Model Name</h3>
+                    <div class="model-meta">
+                        <p th:text="'上传时间：' + ${#temporals.format(model.uploadTime, 'yyyy-MM-dd')}"></p>
+                        <p>
+                            标签：
+                            <span th:each="tag : ${model.tags}" th:text="${tag}" class="tag-badge"></span>
+                        </p>
+                        <p>状态: <span class="status-badge" th:classappend="'status-' + ${model.auditStatus}" th:text="${model.auditStatus}"></span></p>
                     </div>
                 </div>
             </a>
@@ -266,7 +277,6 @@
     </div>
 </div>
 
-<!-- Logout Confirmation Modal -->
 <div id="logoutConfirmModal" class="modal">
     <div class="modal-content">
         <span class="close-button" id="closeLogoutModal">&times;</span>

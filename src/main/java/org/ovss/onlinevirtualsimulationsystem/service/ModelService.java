@@ -124,6 +124,7 @@ public class ModelService {
         List<ModelTagEntity> modelTags = modelTagRepository.findByModel_ModelId(model.getModelId());
         List<String> tags = modelTags.stream()
                 .map(modelTag -> modelTag.getTag().getTagName())
+                .sorted()
                 .limit(3)
                 .collect(Collectors.toList());
 

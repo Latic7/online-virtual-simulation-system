@@ -148,6 +148,17 @@
         .status-PENDING { background-color: #ffc107; color: #333; }
         .status-APPROVED { background-color: #28a745; }
         .status-REJECTED { background-color: #dc3545; }
+        .tag-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: #fff;
+            display: inline-block;
+            margin-top: 5px;
+            background-color: #007bff;
+            margin-right: 5px;
+        }
         /* Modal Styles */
         .modal {
             display: none;
@@ -249,6 +260,10 @@
                     <div class="model-meta">
                         <p th:text="'上传者: ' + ${model.uploaderName}"></p>
                         <p th:text="'上传时间: ' + ${#temporals.format(model.uploadTime, 'yyyy-MM-dd')}"></p>
+                        <p>
+                            标签：
+                            <span th:each="tag : ${model.tags}" th:text="${tag}" class="tag-badge"></span>
+                        </p>
                         <p>状态: <span class="status-badge" th:classappend="'status-' + ${model.auditStatus}" th:text="${model.auditStatus}"></span></p>
                     </div>
                 </div>
@@ -298,4 +313,3 @@
 
 </body>
 </html>
-

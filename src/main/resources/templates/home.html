@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <title>Home</title>
     <meta charset="UTF-8">
@@ -174,10 +174,20 @@
             color: #666;
             margin-top: 5px;
         }
+        .tag-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: #fff;
+            display: inline-block;
+            margin-top: 5px;
+            background-color: #007bff;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
-
 <div class="navbar">
     <a href="/home" class="navbar-brand">在线虚拟仿真系统OVSS</a>
     <div class="nav-links">
@@ -205,7 +215,8 @@
                 <option value="uploadTime,asc" th:selected="${sort.equalsIgnoreCase('uploadTime,asc')}">最早上传</option>
             </select>
 
-            <input type="text" name="search" placeholder="搜索模型、作者或标签..." th:value="${search}" style="margin-left: 20px; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                        <label for="search" style="margin-left: 20px;">搜索:</label>
+            <input id="search" type="text" name="search" placeholder="模型、作者或标签..." th:value="${search}" style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
             <button type="submit" style="padding: 8px 15px; cursor: pointer; border: 1px solid #ddd; background-color: #fff; border-radius: 20px;">搜索</button>
         </form>
     </div>
@@ -217,8 +228,11 @@
                 <h3 th:text="${model.modelName}">Model Name</h3>
                 <div class="model-meta">
                     <p th:text="'上传者：' + ${model.uploaderName}">Uploader</p>
-                    <p th:text="'上传时间：' + ${#temporals.format(model.uploadTime, 'yyyy-MM-dd')}">Upload Date</p>
-                    <p th:text="'标签：' + ${model.tags}">Tags</p>
+<p th:text="'上传时间：' + ${#temporals.format(model.uploadTime, 'yyyy-MM-dd')}">Upload Date</p>
+                    <p>
+                        标签：
+                        <span th:each="tag : ${model.tags}" th:text="${tag}" class="tag-badge"></span>
+                    </p>
                 </div>
             </div>
         </a>
@@ -266,7 +280,7 @@
         document.getElementById('cancelLogoutBtn').onclick = () => modal.style.display = 'none';
         document.getElementById('closeLogoutModal').onclick = () => modal.style.display = 'none';
         window.onclick = (event) => {
-            if (event.target == modal) {
+            if (event.target === modal) {
                 modal.style.display = 'none';
             }
         };
@@ -288,7 +302,7 @@
             }
 
             window.onclick = function(event) {
-                if (event.target == modal) {
+                if (event.target === modal) {
                     modal.style.display = 'none';
                     sessionStorage.setItem('hasSeenLoginModal', 'true');
                 }
