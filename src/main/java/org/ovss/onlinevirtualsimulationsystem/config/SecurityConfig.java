@@ -14,6 +14,8 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -33,16 +35,29 @@ public class SecurityConfig {
     }
 
     @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authException) -> {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.sendRedirect("/login?required=true");
+        };
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+                http.csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/**")
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/login", "/login", "/home", "/error", "/logout", "/register", "/api/users/register").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/thumbnails/**", "/models/**").permitAll()
                         // Add rules for guests, users, and admins
                         .requestMatchers("/api/public/**", "/models/view/**").permitAll() // Publicly accessible endpoints
-                        .requestMatchers("/api/users/me", "/api/models/my-models/**").hasAnyAuthority(UserAuthorityEnum.USER.name(), UserAuthorityEnum.ADMIN.name()) // User and Admin
-                        .requestMatchers("/api/admin/**").hasAuthority(UserAuthorityEnum.ADMIN.name()) // Admin only
+                        .requestMatchers("/profile", "/api/users/me", "/api/models/my-models/**", "/api/models/upload").hasAuthority(UserAuthorityEnum.USER.name()) // User only
+                        .requestMatchers("/admin/**", "/api/admin/**").hasAuthority(UserAuthorityEnum.ADMIN.name()) // Admin only
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(authenticationEntryPoint())
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -50,8 +65,14 @@ public class SecurityConfig {
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
+        http.exceptionHandling(e -> e.accessDeniedHandler((request, response, accessDeniedException) -> {
+            if (request.isUserInRole(UserAuthorityEnum.ADMIN.name()) && "/home".equals(request.getRequestURI())) {
+                response.sendRedirect("/admin/dashboard");
+            } else {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            }
+        }));
+
         return http.build();
     }
 }
-
-

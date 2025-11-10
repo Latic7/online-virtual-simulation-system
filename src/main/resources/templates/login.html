@@ -90,6 +90,15 @@
 </div>
 
 <script>
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const messageElement = document.getElementById('message');
+        if (urlParams.has('required')) {
+            messageElement.style.color = 'orange';
+            messageElement.textContent = '该页面需要登录才能访问。';
+        }
+    };
+
     document.getElementById('loginForm').addEventListener('submit', async function(event) {
         event.preventDefault(); // 阻止表单默认的提交行为
 
@@ -107,13 +116,17 @@
             });
 
             if (response.ok) {
-                // The backend now sets an HttpOnly cookie, so we don't need to handle the token here.
-                // We just need to know the login was successful.
+                const data = await response.json();
                 messageElement.style.color = 'green';
                 messageElement.textContent = '登陆成功！跳转中……';
 
-                // Redirect to the home page
-                window.location.href = '/home';
+                // Redirect to the URL provided in the response
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                } else {
+                    // Fallback if no redirect URL is provided
+                    window.location.href = '/home';
+                }
             } else {
                 // 处理登录失败的情况
                 const errorData = await response.json();

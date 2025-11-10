@@ -33,13 +33,31 @@ public class ModelEntity {
     @JoinColumn(name = "Uploader", nullable = false)
     private UserEntity uploader;
 
-    @Column(name = "UploadTime", nullable = false)
+    @Column(name = "UploadTime", nullable = false, insertable = false, updatable = false)
     private LocalDateTime uploadTime;
 
+    @Column(name = "AuditStatus", nullable = false, insertable = false, updatable = false)
     @Enumerated(EnumType.STRING)
-    @Column(name = "AuditStatus", nullable = false)
     private AuditStatusEnum auditStatus;
+
+    @Column(name = "Version", nullable = false, insertable = false, updatable = false)
+    private Integer version;
+
+    @Column(name = "IsLive", nullable = false, insertable = false, updatable = false)
+    private Boolean isLive;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ParentModelID", insertable = false, updatable = false)
+    private ModelEntity parentModel;
 
     @OneToMany(mappedBy = "model")
     private Set<ModelTagEntity> tags;
+
+    public void setParentModel(ModelEntity parentModel) {
+        this.parentModel = parentModel;
+    }
+
+    public void setIsLive(boolean isLive) {
+        this.isLive = isLive;
+    }
 }

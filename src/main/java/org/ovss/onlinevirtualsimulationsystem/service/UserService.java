@@ -11,6 +11,8 @@ import org.ovss.onlinevirtualsimulationsystem.exception.UserNotFoundException;
 import org.ovss.onlinevirtualsimulationsystem.repository.UserRepository;
 import org.ovss.onlinevirtualsimulationsystem.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,6 +20,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -50,13 +53,28 @@ public class UserService implements UserDetailsService {
         UserDTO userDto = new UserDTO(user.getUserId(), user.getUserName(), user.getUserAuthority());
         String accessToken = jwtUtil.generateToken(userDto);
 
-        return new LoginResponseDTO(accessToken);
+        String redirectUrl;
+        if (user.getUserAuthority() == UserAuthorityEnum.ADMIN) {
+            redirectUrl = "/admin/dashboard";
+        } else {
+            redirectUrl = "/home";
+        }
+
+        return new LoginResponseDTO(accessToken, redirectUrl);
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByUserName(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-        return new User(user.getUserName(), user.getPassword(), new ArrayList<>());
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(user.getUserAuthority().name()));
+        return new User(user.getUserName(), user.getPassword(), authorities);
+    }
+
+    public UserDTO findByUsername(String username) {
+        UserEntity user = userRepository.findByUserName(username)
+                .orElseThrow(() -> new UserNotFoundException("User does not exist"));
+        return new UserDTO(user.getUserId(), user.getUserName(), user.getUserAuthority());
     }
 }

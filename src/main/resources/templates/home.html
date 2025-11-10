@@ -185,7 +185,7 @@
         <div th:if="${username}">
             <span th:text="'欢迎，' + ${username}"></span>
             <button onclick="location.href='/profile'">个人主页</button>
-            <button onclick="handleLogout()">登出</button>
+            <button onclick="handleLogout()">注销</button>
         </div>
         <!-- If user is anonymous -->
         <div th:unless="${username}">
@@ -196,6 +196,7 @@
 </div>
 
 <div class="container">
+    <h1>站内模型</h1>
     <div class="controls">
         <form id="filterForm" th:action="@{/home}" method="get">
             <label for="sort">排序方式:</label>
@@ -210,8 +211,8 @@
     </div>
 
     <div class="model-grid">
-        <a th:each="model : ${models}" th:href="@{/models/view/{modelId}(modelId=${model.modelId})}" class="model-card">
-            <img th:src="${model.thumbnailAddress}" alt="Thumbnail"/>
+        <a th:each="model : ${models}" th:href="@{/models/{modelId}(modelId=${model.modelId})}" class="model-card">
+            <img th:src="${model.thumbnailUrl + '?t=' + #dates.createNow().getTime()}" alt="Thumbnail"/>
             <div class="model-info">
                 <h3 th:text="${model.modelName}">Model Name</h3>
                 <div class="model-meta">
@@ -236,25 +237,39 @@
     </div>
 </div>
 
+<!-- Logout Confirmation Modal -->
+<div id="logoutConfirmModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" id="closeLogoutModal">&times;</span>
+        <h2>确认注销</h2>
+        <p>您确定要注销吗？</p>
+        <button id="confirmLogoutBtn" class="login-btn">确认并注销</button>
+        <button id="cancelLogoutBtn" class="register-btn">取消</button>
+    </div>
+</div>
+
 
 <script>
-    async function handleLogout() {
-        try {
-            const response = await fetch('/api/users/logout', {
-                method: 'POST'
-            });
+    function handleLogout() {
+        const modal = document.getElementById('logoutConfirmModal');
+        modal.style.display = 'block';
 
+        document.getElementById('confirmLogoutBtn').onclick = async function() {
+            const response = await fetch('/api/users/logout', { method: 'POST' });
             if (response.ok) {
-                console.log('Logout successful');
                 window.location.href = '/login';
             } else {
-                console.error('Logout failed:', response.statusText);
                 alert('注销失败，请稍后再试。');
             }
-        } catch (error) {
-            console.error('Error during logout:', error);
-            alert('注销时发生网络错误。');
-        }
+        };
+
+        document.getElementById('cancelLogoutBtn').onclick = () => modal.style.display = 'none';
+        document.getElementById('closeLogoutModal').onclick = () => modal.style.display = 'none';
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
     }
 
     // Modal script

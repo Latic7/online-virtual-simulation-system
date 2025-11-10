@@ -3,12 +3,14 @@ package org.ovss.onlinevirtualsimulationsystem.controller;
 import org.ovss.onlinevirtualsimulationsystem.dto.LoginRequestDTO;
 import org.ovss.onlinevirtualsimulationsystem.dto.LoginResponseDTO;
 import org.ovss.onlinevirtualsimulationsystem.dto.RegistrationRequestDTO;
+import org.ovss.onlinevirtualsimulationsystem.dto.UserDTO;
 import org.ovss.onlinevirtualsimulationsystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletResponse;
+import java.security.Principal;
 
 
 @RestController
@@ -30,10 +32,9 @@ public class UserController {
 
         // Using ResponseCookie builder for more options
         ResponseCookie cookie = ResponseCookie.from("jwt-token", loginResponse.getAccessToken())
-                .httpOnly(true)
                 .path("/")
                 .maxAge(1800) // 30 minutes
-                .sameSite("Lax") // Set SameSite attribute
+                .sameSite("Strict") // Change to Strict for better security
                 .build();
 
         httpServletResponse.addHeader("Set-Cookie", cookie.toString());
@@ -54,5 +55,11 @@ public class UserController {
 
         // Also clear the refresh token cookie, just in case it exists
         return ResponseEntity.ok("Logout successful");
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO> getMyInfo(Principal principal) {
+        UserDTO user = userService.findByUsername(principal.getName());
+        return ResponseEntity.ok(user);
     }
 }

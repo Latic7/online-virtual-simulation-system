@@ -30,17 +30,24 @@ CREATE TABLE IF NOT EXISTS `model` (
   `Uploader` bigint NOT NULL COMMENT '上传者ID',
   `UploadTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '上传时间',
   `AuditStatus` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'PENDING' COMMENT '审核状态',
+  `Version` int NOT NULL DEFAULT '1' COMMENT '版本号',
+  `IsLive` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为线上展示的最新版本',
+  `ParentModelID` bigint DEFAULT NULL COMMENT '父模型ID，用于版本追溯',
   PRIMARY KEY (`ModelID`),
   KEY `fk_Uploader` (`Uploader`),
+  KEY `fk_ParentModel` (`ParentModelID`),
+  KEY `idx_IsLive` (`IsLive`),
+  KEY `idx_Uploader_IsLive` (`Uploader`,`IsLive`),
+  CONSTRAINT `fk_ParentModel` FOREIGN KEY (`ParentModelID`) REFERENCES `model` (`ModelID`) ON DELETE SET NULL,
   CONSTRAINT `fk_Uploader` FOREIGN KEY (`Uploader`) REFERENCES `user` (`UserID`),
   CONSTRAINT `chk_AuditStatus` CHECK ((`AuditStatus` in (_utf8mb4'PENDING',_utf8mb4'APPROVED',_utf8mb4'REJECTED')))
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 正在导出表  ovss_db.model 的数据：~2 rows (大约)
 DELETE FROM `model`;
-INSERT INTO `model` (`ModelID`, `ModelName`, `ThumbnailAddress`, `FileAddress`, `Uploader`, `UploadTime`, `AuditStatus`) VALUES
-	(1, '军用虎钳', '/thumbnails/jaw_vice_thumbnail.png', '/models/jaw_vice.glb', 1, '2025-11-06 22:22:41', 'PENDING'),
-	(2, '小方块', '/thumbnails/red_cube.png', '/models/red_cube.glb', 4, '2025-11-07 11:38:11', 'APPROVED');
+INSERT INTO `model` (`ModelID`, `ModelName`, `ThumbnailAddress`, `FileAddress`, `Uploader`, `UploadTime`, `AuditStatus`, `Version`, `IsLive`, `ParentModelID`) VALUES
+	(1, '军用虎钳', '/thumbnails/jaw_vice_thumbnail.png', '/models/jaw_vice.glb', 1, '2025-11-07 16:16:42', 'PENDING', 1, 1, NULL),
+	(2, '小方块', '/thumbnails/red_cube.png', '/models/red_cube.glb', 4, '2025-11-07 16:16:44', 'APPROVED', 1, 1, NULL);
 
 -- 导出  表 ovss_db.modeltag 结构
 DROP TABLE IF EXISTS `modeltag`;
@@ -87,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   CONSTRAINT `chk_UserAuthority` CHECK ((`UserAuthority` in (_utf8mb4'USER',_utf8mb4'ADMIN')))
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- 正在导出表  ovss_db.user 的数据：~3 rows (大约)
+-- 正在导出表  ovss_db.user 的数据：~4 rows (大约)
 DELETE FROM `user`;
 INSERT INTO `user` (`UserID`, `UserName`, `UserAuthority`, `Password`) VALUES
 	(1, 'somebody', 'USER', '123456'),
