@@ -269,8 +269,14 @@
                 </div>
             </div>
             <div class="model-actions">
-                <button class="approve-btn" th:disabled="${model.auditStatus == 'APPROVED' or model.auditStatus == 'REJECTED'}">批准</button>
-                <button class="reject-btn" th:disabled="${model.auditStatus == 'REJECTED'}">驳回</button>
+                <button class="approve-btn"
+                        th:attr="data-model-id=${model.modelId}"
+                        th:disabled="${model.auditStatus == 'APPROVED' or model.auditStatus == 'REJECTED'}"
+                        onclick="handleApprove(this)">批准</button>
+                <button class="reject-btn"
+                        th:attr="data-model-id=${model.modelId}"
+                        th:disabled="${model.auditStatus == 'REJECTED'}"
+                        onclick="handleReject(this)">驳回</button>
             </div>
         </div>
     </div>
@@ -308,6 +314,30 @@
                 modal.style.display = 'none';
             }
         };
+    }
+
+    async function handleApprove(button) {
+        const modelId = button.getAttribute('data-model-id');
+        const response = await fetch(`/api/admin/models/${modelId}/approve`, { method: 'POST' });
+        if (response.ok) {
+            alert('模型已批准！');
+            window.location.reload();
+        } else {
+            const result = await response.json();
+            alert('操作失败: ' + result.message);
+        }
+    }
+
+    async function handleReject(button) {
+        const modelId = button.getAttribute('data-model-id');
+        const response = await fetch(`/api/admin/models/${modelId}/reject`, { method: 'POST' });
+        if (response.ok) {
+            alert('模型已驳回！');
+            window.location.reload();
+        } else {
+            const result = await response.json();
+            alert('操作失败: ' + result.message);
+        }
     }
 </script>
 

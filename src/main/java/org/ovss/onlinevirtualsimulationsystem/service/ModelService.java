@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import net.coobird.thumbnailator.Thumbnails;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -166,7 +169,17 @@ public class ModelService {
         String thumbnailFilename = UUID.randomUUID() + "." + StringUtils.getFilenameExtension(thumbnailFile.getOriginalFilename());
         String modelFilename = UUID.randomUUID() + "." + StringUtils.getFilenameExtension(modelFile.getOriginalFilename());
 
-        Files.copy(thumbnailFile.getInputStream(), this.thumbnailStorageLocation.resolve(thumbnailFilename), StandardCopyOption.REPLACE_EXISTING);
+        byte[] thumbnailBytes = thumbnailFile.getBytes();
+        if (thumbnailFile.getSize() > 1 * 1024 * 1024) { // If > 1MB
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            Thumbnails.of(thumbnailFile.getInputStream())
+                    .size(1280, 720)
+                    .outputQuality(0.5)
+                    .toOutputStream(outputStream);
+            thumbnailBytes = outputStream.toByteArray();
+        }
+
+        Files.copy(new ByteArrayInputStream(thumbnailBytes), this.thumbnailStorageLocation.resolve(thumbnailFilename), StandardCopyOption.REPLACE_EXISTING);
         Files.copy(modelFile.getInputStream(), this.modelStorageLocation.resolve(modelFilename), StandardCopyOption.REPLACE_EXISTING);
 
         ModelEntity newModel = new ModelEntity();
@@ -197,4 +210,31 @@ public class ModelService {
             }
         }
     }
+
+    @Transactional
+    public void approveModel(Long modelId) {
+        ModelEntity model = modelRepository.findById(modelId)
+                .orElseThrow(() -> new RuntimeException("未找到ID为 " + modelId + " 的模型"));
+
+        if (model.getAuditStatus() != AuditStatusEnum.PENDING) {
+            throw new IllegalStateException("只有状态为“待审核”的模型才能被批准。");
+        }
+
+        model.setAuditStatus(AuditStatusEnum.APPROVED);
+        model.setIsLive(true);
+    }
+
+    @Transactional
+    public void rejectModel(Long modelId) {
+        ModelEntity model = modelRepository.findById(modelId)
+                .orElseThrow(() -> new RuntimeException("未找到ID为 " + modelId + " 的模型"));
+
+        if (model.getAuditStatus() != AuditStatusEnum.PENDING && model.getAuditStatus() != AuditStatusEnum.APPROVED) {
+            throw new IllegalStateException("只有状态为“待审核”或“审核通过”的模型才能被驳回。");
+        }
+
+        model.setAuditStatus(AuditStatusEnum.REJECTED);
+        model.setIsLive(false);
+    }
+
 }

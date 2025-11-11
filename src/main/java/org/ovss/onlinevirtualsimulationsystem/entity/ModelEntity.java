@@ -33,17 +33,21 @@ public class ModelEntity {
     @JoinColumn(name = "Uploader", nullable = false)
     private UserEntity uploader;
 
+    // 由数据库填充与更新
     @Column(name = "UploadTime", nullable = false, insertable = false, updatable = false)
     private LocalDateTime uploadTime;
 
-    @Column(name = "AuditStatus", nullable = false, insertable = false, updatable = false)
+    // 允许应用层更新审核状态（从 PENDING -> APPROVED/REJECTED）
+    @Column(name = "AuditStatus", nullable = false)
     @Enumerated(EnumType.STRING)
     private AuditStatusEnum auditStatus;
 
+    // 版本号由数据库默认值提供，暂不在应用层更新
     @Column(name = "Version", nullable = false, insertable = false, updatable = false)
     private Integer version;
 
-    @Column(name = "IsLive", nullable = false, insertable = false, updatable = false)
+    // 允许应用层更新 IsLive（上线/下线）
+    @Column(name = "IsLive", nullable = false)
     private Boolean isLive;
 
     @ManyToOne(fetch = FetchType.LAZY)
