@@ -1,19 +1,20 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Model View</title>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <title>Model Viewer</title>
+    <script type="module" crossorigin th:src="@{/assets/index-s-KoNWUh.js}"></script>
+    <link rel="stylesheet" th:href="@{/assets/index-TZrNw7dA.css}">
 </head>
 <body>
-    <div th:if="${model}">
-        <h1 th:text="${model.modelName}">Model Name</h1>
-        <p>Uploader: <span th:text="${model.uploaderName}">Uploader</span></p>
-        <p>Upload Time: <span th:text="${#temporals.format(model.uploadTime, 'yyyy-MM-dd HH:mm')}">Upload Time</span></p>
-        <p>File Address: <span th:text="${model.fileAddress}">File Address</span></p>
-    </div>
-    <div th:unless="${model}">
-        <p>Model not found.</p>
-    </div>
+<div id="root"></div>
+
+<!-- Pass the model URL to the frontend -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.modelUrl = /*[[${modelUrl}]]*/ '';
+    /*]]>*/
+</script>
 </body>
 </html>
 

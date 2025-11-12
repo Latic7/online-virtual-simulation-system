@@ -101,16 +101,21 @@ public class PageController {
         return "admin/dashboard";
     }
 
-    @GetMapping("/models/{modelId}")
+    @GetMapping("/model/{modelId}")
     public String modelView(@PathVariable Long modelId, Model model, Principal principal) {
+        ModelViewDTO modelViewDTO = modelService.getModelView(modelId, principal);
+        if (modelViewDTO == null) {
+            return "error/404"; // Or a specific error page for unauthorized access
+        }
+
+        // Pass only the model URL to the view
+        model.addAttribute("modelUrl", modelViewDTO.getFileAddress());
+
+        // Pass username if logged in
         if (principal != null) {
             model.addAttribute("username", principal.getName());
         }
-        ModelViewDTO modelViewDTO = modelService.getModelView(modelId, principal);
-        if (modelViewDTO == null) {
-            return "error/404";
-        }
-        model.addAttribute("model", modelViewDTO);
+
         return "model_view";
     }
 }

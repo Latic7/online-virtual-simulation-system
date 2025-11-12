@@ -222,7 +222,7 @@
     </div>
 
     <div class="model-grid">
-        <a th:each="model : ${models}" th:href="@{/models/{modelId}(modelId=${model.modelId})}" class="model-card">
+        <a th:each="model : ${models}" th:href="@{/model/{modelId}(modelId=${model.modelId})}" class="model-card">
             <img th:src="${model.thumbnailUrl + '?t=' + #dates.createNow().getTime()}" alt="Thumbnail"/>
             <div class="model-info">
                 <h3 th:text="${model.modelName}">Model Name</h3>
