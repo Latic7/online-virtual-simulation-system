@@ -44,14 +44,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-                http.csrf(csrf -> csrf
+        http.csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/**")
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/login", "/login", "/home", "/error", "/logout", "/register", "/api/users/register").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/thumbnails/**", "/models/**").permitAll()
-                        // Add rules for guests, users, and admins
-                        .requestMatchers("/api/public/**", "/models/view/**").permitAll() // Publicly accessible endpoints
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/thumbnails/**", "/assets/**", "/models/**").permitAll()
+                        .requestMatchers("/api/public/**", "/model/**").permitAll()
                         .requestMatchers("/profile", "/api/users/me", "/api/models/my-models/**", "/api/models/upload").hasAuthority(UserAuthorityEnum.USER.name()) // User only
                         .requestMatchers("/admin/**", "/api/admin/**").hasAuthority(UserAuthorityEnum.ADMIN.name()) // Admin only
                         .anyRequest().authenticated()
@@ -69,7 +68,7 @@ public class SecurityConfig {
             if (request.isUserInRole(UserAuthorityEnum.ADMIN.name()) && "/home".equals(request.getRequestURI())) {
                 response.sendRedirect("/admin/dashboard");
             } else {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                response.sendRedirect("/error/403");
             }
         }));
 

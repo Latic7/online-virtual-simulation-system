@@ -255,7 +255,7 @@
     </div>
     <div class="model-grid">
         <div th:each="model : ${models}" class="model-card">
-            <a th:href="@{/models/{modelId}(modelId=${model.modelId})}" style="text-decoration: none; color: inherit;">
+            <a th:href="@{/model/{modelId}(modelId=${model.modelId})}" style="text-decoration: none; color: inherit;">
                 <img th:src="${model.thumbnailUrl + '?t=' + #dates.createNow().getTime()}" alt="Thumbnail"/>
                 <div class="model-info">
                     <h3 th:text="${model.modelName}">Model Name</h3>

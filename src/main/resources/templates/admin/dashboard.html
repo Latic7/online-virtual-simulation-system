@@ -252,7 +252,7 @@
     <div class="model-grid">
         <div th:each="model : ${models}" class="model-card">
             <div>
-                <a th:href="@{/models/{modelId}(modelId=${model.modelId})}">
+                <a th:href="@{/model/{modelId}(modelId=${model.modelId})}">
                     <img th:src="${model.thumbnailUrl + '?t=' + #dates.createNow().getTime()}" alt="Thumbnail"/>
                 </a>
                 <div class="model-info">
