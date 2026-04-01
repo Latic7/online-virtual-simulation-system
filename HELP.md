@@ -1,5 +1,13 @@
 # Getting Started
 
+## Ownership Notice
+
+Author: Latic7 (https://github.com/Latic7)
+
+Copyright (c) 2026 Latic7. All rights reserved.
+
+This project is already published under the above GitHub account.
+
 ### Reference Documentation
 
 For further reference, please consider the following sections:

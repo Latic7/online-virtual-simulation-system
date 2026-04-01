@@ -1,4 +1,12 @@
 ### STILL IN ACTIVE DEVELOPMENT, THIS VERSION IS UNSTABLE
+
+### Ownership Notice
+This project is authored by Latic7: https://github.com/Latic7
+
+Copyright (c) 2026 Latic7. All rights reserved.
+
+This source code and related assets are already published in a repository under the above GitHub account. Unauthorized copying, relicensing, or claiming authorship is prohibited.
+
 ### Description
 An online virtual simulation system for viewing 3D models in real-time. Based on Spring Boot and Three.js. 
 This is part of a URP project, i.e. Undergraduate Research Programme, of China Agricultural University. 
