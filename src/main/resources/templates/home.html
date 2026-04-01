@@ -101,32 +101,65 @@
             margin: 5px 0;
         }
 
-        /* Modal Styles */
+        /* Logout Modal Styles */
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top */
+            display: none;
+            position: fixed;
+            z-index: 1000;
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
         }
-
         .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto; /* 15% from the top and centered */
+            background-color: #fff;
             padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 90%;
             max-width: 400px;
-            border-radius: 10px;
             text-align: center;
-            position: relative;
+        }
+        .modal-content h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .modal-content p {
+            margin-bottom: 20px;
+        }
+        .modal-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 0 10px;
+            min-width: 100px;
+        }
+        #confirmLogoutBtn {
+            background-color: #dc3545;
+            color: white;
+        }
+        #cancelLogoutBtn {
+            background-color: #f0f0f0;
         }
 
-        .close-button {
+        /* Login Modal specific styles, if needed */
+        #loginModal {
+            display: none; /* Overridden by script */
+            justify-content: center;
+            align-items: flex-start; /* Align to top to respect margin */
+        }
+        #loginModal .modal-content {
+             margin: 15% auto;
+             position: relative; /* This is crucial for positioning the close button */
+        }
+        #loginModal .close-button {
             color: #aaa;
             position: absolute;
             top: 10px;
@@ -134,19 +167,28 @@
             font-size: 28px;
             font-weight: bold;
         }
-
-        .close-button:hover,
-        .close-button:focus {
+        #loginModal .close-button:hover,
+        #loginModal .close-button:focus {
             color: black;
             text-decoration: none;
             cursor: pointer;
         }
-
-        .modal-content h2 {
-            margin-top: 0;
+        #loginModal .login-btn {
+            background-color: #007bff;
+            color: white;
+            border: 1px solid #007bff;
         }
-
-        .modal-content button {
+        #loginModal .register-btn {
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        #loginModal .register-note {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        #loginModal button {
             display: block;
             width: 90%;
             padding: 12px 20px;
@@ -155,24 +197,6 @@
             cursor: pointer;
             font-size: 1em;
             box-sizing: border-box;
-        }
-
-        .modal-content .login-btn {
-            background-color: #007bff;
-            color: white;
-            border: 1px solid #007bff;
-        }
-
-        .modal-content .register-btn {
-            background-color: #fff;
-            color: #333;
-            border: 1px solid #ddd;
-        }
-
-        .modal-content .register-note {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 5px;
         }
         .tag-badge {
             padding: 3px 8px;
@@ -254,11 +278,12 @@
 <!-- Logout Confirmation Modal -->
 <div id="logoutConfirmModal" class="modal">
     <div class="modal-content">
-        <span class="close-button" id="closeLogoutModal">&times;</span>
         <h2>确认注销</h2>
         <p>您确定要注销吗？</p>
-        <button id="confirmLogoutBtn" class="login-btn">确认并注销</button>
-        <button id="cancelLogoutBtn" class="register-btn">取消</button>
+        <div class="modal-actions">
+            <button id="cancelLogoutBtn">取消</button>
+            <button id="confirmLogoutBtn">确认</button>
+        </div>
     </div>
 </div>
 
@@ -266,7 +291,7 @@
 <script>
     function handleLogout() {
         const modal = document.getElementById('logoutConfirmModal');
-        modal.style.display = 'block';
+        modal.style.display = 'flex';
 
         document.getElementById('confirmLogoutBtn').onclick = async function() {
             const response = await fetch('/api/users/logout', { method: 'POST' });
@@ -278,7 +303,6 @@
         };
 
         document.getElementById('cancelLogoutBtn').onclick = () => modal.style.display = 'none';
-        document.getElementById('closeLogoutModal').onclick = () => modal.style.display = 'none';
         window.onclick = (event) => {
             if (event.target === modal) {
                 modal.style.display = 'none';
@@ -287,18 +311,20 @@
     }
 
     // Modal script
-    window.onload = function() {
+    window.addEventListener('load', function() {
         const modal = document.getElementById('loginModal');
         if (modal) {
             const hasSeenModal = sessionStorage.getItem('hasSeenLoginModal');
             if (!hasSeenModal) {
-                modal.style.display = 'block';
+                modal.style.display = 'flex';
             }
 
-            const closeButton = document.querySelector('.close-button');
-            closeButton.onclick = function() {
-                modal.style.display = 'none';
-                sessionStorage.setItem('hasSeenLoginModal', 'true');
+            const closeButton = modal.querySelector('.close-button');
+            if(closeButton) {
+                closeButton.onclick = function() {
+                    modal.style.display = 'none';
+                    sessionStorage.setItem('hasSeenLoginModal', 'true');
+                }
             }
 
             window.onclick = function(event) {
@@ -308,7 +334,7 @@
                 }
             }
         }
-    };
+    });
 </script>
 
 </body>

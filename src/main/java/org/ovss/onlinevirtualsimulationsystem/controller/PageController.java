@@ -108,8 +108,9 @@ public class PageController {
             return "error/404"; // Or a specific error page for unauthorized access
         }
 
-        // Pass only the model URL to the view
-        model.addAttribute("modelUrl", modelViewDTO.getFileAddress());
+        // Pass the whole DTO to the view
+        model.addAttribute("modelInfo", modelViewDTO);
+        model.addAttribute("modelUrl", modelViewDTO.getFileAddress()); // Keep this for the script
 
         // Pass username if logged in
         if (principal != null) {

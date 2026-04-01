@@ -31,9 +31,12 @@ import java.security.Principal;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 public class ModelService {
@@ -50,8 +53,9 @@ public class ModelService {
     @Autowired
     private TagRepository tagRepository;
 
-    private final Path thumbnailStorageLocation = Paths.get("src/main/resources/static/thumbnails");
-    private final Path modelStorageLocation = Paths.get("src/main/resources/static/models");
+    private final Path storageRoot = Paths.get("uploads").toAbsolutePath().normalize();
+    private final Path thumbnailStorageLocation = storageRoot.resolve("thumbnails");
+    private final Path modelStorageLocation = storageRoot.resolve("models");
 
     public ModelService() {
         try {
@@ -72,35 +76,44 @@ public class ModelService {
         return models.stream().map(this::convertToSnippetDTO).collect(Collectors.toList());
     }
 
+    // Java
     public ModelViewDTO getModelView(Long modelId, Principal principal) {
-        ModelEntity model = modelRepository.findById(modelId).orElse(null);
-        if (model == null) {
-            return null;
+        Optional<ModelEntity> modelOpt = modelRepository.findById(modelId);
+        if (modelOpt.isEmpty()) {
+            return null; // Model not found
         }
 
-        if (principal == null) { // Anonymous user
-            if (model.getAuditStatus() == AuditStatusEnum.APPROVED && model.getIsLive()) {
+        ModelEntity model = modelOpt.get();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        boolean isPubliclyVisible = model.getAuditStatus() == AuditStatusEnum.APPROVED && model.getIsLive();
+
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            // Anonymous user
+            if (isPubliclyVisible) {
                 return convertToViewDTO(model);
-            } else {
-                return null;
             }
-        } else { // Authenticated user
-            UserEntity user = userRepository.findByUserName(principal.getName()).orElse(null);
-            if (user == null) {
-                return null;
-            }
+        } else {
+            // Authenticated user
+            String username = principal.getName();
+            UserEntity user = userRepository.findByUserName(username)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + username));
 
             if (user.getUserAuthority() == UserAuthorityEnum.ADMIN) {
-                return convertToViewDTO(model);
-            } else { // USER
-                if ((model.getAuditStatus() == AuditStatusEnum.APPROVED && model.getIsLive()) || model.getUploader().getUserId().equals(user.getUserId())) {
+                return convertToViewDTO(model); // Admin can see everything
+            }
+
+            if (user.getUserAuthority() == UserAuthorityEnum.USER) {
+                boolean isOwner = model.getUploader().getUserId().equals(user.getUserId());
+                if (isPubliclyVisible || isOwner) {
                     return convertToViewDTO(model);
-                } else {
-                    return null;
                 }
             }
         }
+
+        return null; // Access denied
     }
+
 
     public List<ModelSnippetDTO> getMyModels(Long userId, String search, AuditStatusEnum status, Sort sort) {
         List<ModelEntity> models;
@@ -143,11 +156,16 @@ public class ModelService {
     }
 
     private ModelViewDTO convertToViewDTO(ModelEntity model) {
+        List<String> tags = modelTagRepository.findByModel_ModelId(model.getModelId()).stream()
+                .map(modelTag -> modelTag.getTag().getTagName())
+                .collect(Collectors.toList());
+
         return new ModelViewDTO(
                 model.getModelName(),
                 model.getFileAddress(),
                 model.getUploader().getUserName(),
-                model.getUploadTime()
+                model.getUploadTime(),
+                tags
         );
     }
 

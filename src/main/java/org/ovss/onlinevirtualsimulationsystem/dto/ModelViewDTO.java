@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -14,5 +15,5 @@ public class ModelViewDTO {
     private String fileAddress;
     private String uploaderName;
     private LocalDateTime uploadTime;
+    private List<String> tags;
 }
-
