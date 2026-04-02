@@ -51,7 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/login", "/login", "/home", "/error", "/logout", "/register", "/api/users/register").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/thumbnails/**", "/assets/**", "/models/**").permitAll()
                         .requestMatchers("/api/public/**", "/model/**").permitAll()
-                        .requestMatchers("/profile", "/api/users/me", "/api/models/my-models/**", "/api/models/upload").hasAuthority(UserAuthorityEnum.USER.name()) // User only
+                        .requestMatchers("/profile", "/api/users/me", "/api/models/**").hasAuthority(UserAuthorityEnum.USER.name()) // User only
                         .requestMatchers("/admin/**", "/api/admin/**").hasAuthority(UserAuthorityEnum.ADMIN.name()) // Admin only
                         .anyRequest().authenticated()
                 )

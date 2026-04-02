@@ -19,6 +19,8 @@ public class ModelSnippetDTO {
     private String thumbnailUrl;
     private String fileAddress;
     private String auditStatus;
+    private String lifecycleStatus;
+    private String submissionType;
 
     public ModelSnippetDTO(Long modelId, String modelName, List<String> tags, LocalDateTime uploadTime, String uploaderName, String thumbnailUrl, String fileAddress) {
         this.modelId = modelId;

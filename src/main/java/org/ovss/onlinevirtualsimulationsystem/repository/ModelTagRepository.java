@@ -9,5 +9,7 @@ import java.util.List;
 @Repository
 public interface ModelTagRepository extends JpaRepository<ModelTagEntity, ModelTagEntity.ModelTagId> {
     List<ModelTagEntity> findByModel_ModelId(Long modelId);
+
+    void deleteByModel_ModelId(Long modelId);
 }
 

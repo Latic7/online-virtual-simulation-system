@@ -3,7 +3,6 @@ package org.ovss.onlinevirtualsimulationsystem.controller;
 import org.ovss.onlinevirtualsimulationsystem.dto.ModelSnippetDTO;
 import org.ovss.onlinevirtualsimulationsystem.dto.ModelViewDTO;
 import org.ovss.onlinevirtualsimulationsystem.dto.UserDTO;
-import org.ovss.onlinevirtualsimulationsystem.enumeration.AuditStatusEnum;
 import org.ovss.onlinevirtualsimulationsystem.enumeration.UserAuthorityEnum;
 import org.ovss.onlinevirtualsimulationsystem.service.ModelService;
 import org.ovss.onlinevirtualsimulationsystem.service.UserService;
@@ -60,13 +59,18 @@ public class PageController {
 
     @GetMapping("/profile")
     public String profile(Model model, Principal principal,
-                          @RequestParam(required = false) String search,
-                          @RequestParam(required = false) AuditStatusEnum status,
+                          @RequestParam(required = false, defaultValue = "") String search,
+                          @RequestParam(required = false, defaultValue = "LIVE") String filterType,
                           @SortDefault(sort = "uploadTime", direction = Sort.Direction.DESC) Sort sort) {
         UserDTO user = userService.findByUsername(principal.getName());
-        List<ModelSnippetDTO> models = modelService.getMyModels(user.getUserId(), search, status, sort);
+        List<ModelSnippetDTO> models = modelService.getMyModels(user.getUserId(), search, filterType, sort);
+        ModelService.ModelOverviewStats stats = modelService.getMyModelOverview(user.getUserId());
+
         model.addAttribute("models", models);
         model.addAttribute("username", user.getUserName());
+        model.addAttribute("totalModelsCount", stats.getTotalCount());
+        model.addAttribute("pendingModelsCount", stats.getSecondaryCount());
+        model.addAttribute("liveModelsCount", stats.getTertiaryCount());
 
         String sortString = sort.stream()
                 .map(order -> order.getProperty() + "," + order.getDirection().name().toLowerCase())
@@ -75,7 +79,7 @@ public class PageController {
         model.addAttribute("sort", sortString);
 
         model.addAttribute("search", search);
-        model.addAttribute("status", status != null ? status.name() : "");
+        model.addAttribute("filterType", filterType);
 
 
         return "profile";
@@ -84,11 +88,16 @@ public class PageController {
     @GetMapping("/admin/dashboard")
     public String adminDashboard(Model model, Principal principal,
                                  @RequestParam(required = false, defaultValue = "") String search,
-                                 @RequestParam(required = false) AuditStatusEnum status,
+                                 @RequestParam(required = false, defaultValue = "PENDING_REVIEW") String filterType,
                                  @SortDefault(sort = "uploadTime", direction = Sort.Direction.DESC) Sort sort) {
         model.addAttribute("username", principal.getName());
-        List<ModelSnippetDTO> models = modelService.getAllModelsForAdmin(search, status, sort);
+        List<ModelSnippetDTO> models = modelService.getAllModelsForAdmin(search, filterType, sort);
+        ModelService.ModelOverviewStats stats = modelService.getAdminModelOverview();
+
         model.addAttribute("models", models);
+        model.addAttribute("pendingReviewCount", stats.getTotalCount());
+        model.addAttribute("appealingCount", stats.getSecondaryCount());
+        model.addAttribute("rejectedModelsCount", stats.getTertiaryCount());
 
         String sortString = sort.stream()
                 .map(order -> order.getProperty() + "," + order.getDirection().name().toLowerCase())
@@ -97,7 +106,7 @@ public class PageController {
         model.addAttribute("sort", sortString);
 
         model.addAttribute("search", search);
-        model.addAttribute("status", status != null ? status.name() : null);
+        model.addAttribute("filterType", filterType);
         return "admin/dashboard";
     }
 

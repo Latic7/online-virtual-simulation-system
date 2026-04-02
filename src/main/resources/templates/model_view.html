@@ -4,81 +4,135 @@
     <meta charset="UTF-8" />
     <title th:text="${modelInfo.modelName} + ' - Model Viewer'">Model Viewer</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 0;
-            background-color: #f4f4f9;
-            color: #333;
+        :root {
+            --bg-a: #f7f2e8;
+            --bg-b: #f0e2cc;
+            --ink: #2a2318;
+            --muted: #6a5f4b;
+            --brand: #bd4f2c;
+            --brand-deep: #8e361c;
+            --accent: #2b6a62;
+            --card: rgba(255, 252, 247, 0.9);
+            --line: rgba(82, 64, 41, 0.2);
+            --shadow: 0 16px 40px rgba(72, 48, 24, 0.14);
+            --danger: #b9352e;
         }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Noto Serif SC", "STSong", "Songti SC", serif;
+            margin: 0;
+            color: var(--ink);
+            background: radial-gradient(circle at 15% 12%, #fff7ea 0, transparent 28%),
+                        radial-gradient(circle at 88% 8%, #f4dbc4 0, transparent 24%),
+                        linear-gradient(140deg, var(--bg-a), var(--bg-b));
+            min-height: 100vh;
+        }
+
         .navbar {
-            background-color: #fff;
-            padding: 15px 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(8px);
+            background: rgba(252, 244, 232, 0.86);
+            border-bottom: 1px solid var(--line);
+            padding: 14px 22px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+
         .navbar-brand {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #333;
+            font-size: clamp(20px, 2vw, 30px);
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: var(--brand-deep);
             text-decoration: none;
+            text-transform: uppercase;
         }
+
         .nav-links {
             display: flex;
             align-items: center;
+            gap: 10px;
         }
+
         .nav-links span {
-            margin-right: 15px;
-            font-weight: bold;
+            font-size: 14px;
+            color: var(--muted);
+            padding: 7px 12px;
+            border: 1px dashed var(--line);
+            border-radius: 999px;
         }
+
         .nav-links button {
-            margin-left: 10px;
-            padding: 8px 15px;
+            padding: 10px 16px;
             cursor: pointer;
-            border: 1px solid #ddd;
-            background-color: #fff;
-            border-radius: 20px;
-            transition: background-color 0.3s, color 0.3s;
+            border: 1px solid var(--line);
+            background: #f9f2e8;
+            color: var(--ink);
+            border-radius: 999px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-family: inherit;
+            font-weight: 600;
         }
+
         .nav-links button:hover {
-            background-color: #007bff;
-            color: #fff;
-            border-color: #007bff;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(55, 32, 10, 0.16);
         }
+
         .container {
-            padding: 30px;
+            padding: 26px;
             max-width: 1200px;
             margin: auto;
         }
+
+        .model-header {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 14px;
+        }
+
         .model-header {
             margin-bottom: 20px;
         }
         .model-header h1 {
-            font-size: 2.5em;
+            font-size: clamp(28px, 3vw, 42px);
             margin-bottom: 10px;
         }
+
         .model-meta {
-            font-size: 1em;
-            color: #666;
+            font-size: 14px;
+            color: var(--muted);
         }
         .model-meta p {
             margin: 5px 0;
         }
+
         .tag-badge {
             padding: 3px 8px;
             border-radius: 12px;
             font-size: 0.9em;
             font-weight: bold;
-            color: #fff;
+            color: var(--accent);
             display: inline-block;
             margin-right: 5px;
-            background-color: #007bff;
+            background: rgba(43, 106, 98, 0.12);
+            border: 1px solid rgba(43, 106, 98, 0.25);
         }
+
         .viewer-container {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
             overflow: hidden;
             height: 600px; /* Adjust height as needed */
             position: relative;
@@ -92,22 +146,26 @@
             display: none;
             position: fixed;
             z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background: rgba(45, 29, 13, 0.4);
             justify-content: center;
             align-items: center;
+            padding: 14px;
         }
+
+        .modal[style*="display: none"] {
+            display: none !important;
+        }
+
         .modal-content {
-            background-color: #fff;
+            background: #fffdf8;
+            border: 1px solid var(--line);
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
             width: 90%;
-            max-width: 400px;
+            max-width: 450px;
             text-align: center;
         }
         .modal-content h2 {
@@ -121,18 +179,34 @@
         .modal-actions button {
             padding: 10px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 999px;
             cursor: pointer;
             font-size: 1em;
-            margin: 0 10px;
+            margin: 0 6px;
             min-width: 100px;
+            font-family: inherit;
+            font-weight: 600;
         }
         #confirmLogoutBtn {
-            background-color: #dc3545;
+            background-color: var(--danger);
             color: white;
         }
         #cancelLogoutBtn {
-            background-color: #f0f0f0;
+            background-color: #f0e6d7;
+        }
+
+        @media (max-width: 760px) {
+            .nav-links {
+                gap: 6px;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+            .container {
+                padding: 16px;
+            }
+            .viewer-container {
+                height: 460px;
+            }
         }
     </style>
     <script>
@@ -150,7 +224,7 @@
             };
 
             document.getElementById('cancelLogoutBtn').onclick = () => modal.style.display = 'none';
-            window.onclick = (event) => {
+            modal.onclick = (event) => {
                 if (event.target === modal) {
                     modal.style.display = 'none';
                 }
@@ -163,15 +237,16 @@
 <div class="navbar">
     <a href="/home" class="navbar-brand">在线虚拟仿真系统OVSS</a>
     <div class="nav-links">
-        <button onclick="history.back()">返回上一页</button>
         <!-- If user is authenticated -->
         <div th:if="${username}">
             <span th:text="'欢迎，' + ${username}"></span>
+            <button onclick="history.back()">返回上一页</button>
             <button onclick="location.href='/profile'">个人主页</button>
             <button onclick="handleLogout()">注销</button>
         </div>
         <!-- If user is anonymous -->
         <div th:unless="${username}">
+            <button onclick="history.back()">返回上一页</button>
             <button onclick="location.href='/login'">登录</button>
             <button onclick="location.href='/register'">注册</button>
         </div>

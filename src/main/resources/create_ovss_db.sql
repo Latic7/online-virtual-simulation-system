@@ -30,28 +30,33 @@ CREATE TABLE IF NOT EXISTS `model` (
   `Uploader` bigint NOT NULL COMMENT '上传者ID',
   `UploadTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '上传时间',
   `AuditStatus` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'PENDING' COMMENT '审核状态',
+  `LifecycleStatus` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'STAGED' COMMENT '生命周期状态（LIVE线上版本，LEGACY历史版本，STAGED待处理版本）',
+  `SubmissionType` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'UPLOAD' COMMENT '提交流程来源（UPLOAD首发，UPDATE更新，APPEAL申诉）',
   `Version` int NOT NULL DEFAULT '1' COMMENT '版本号',
-  `IsLive` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为线上展示的最新版本',
   `ParentModelID` bigint DEFAULT NULL COMMENT '父模型ID，用于版本追溯',
   PRIMARY KEY (`ModelID`),
   KEY `fk_Uploader` (`Uploader`),
   KEY `fk_ParentModel` (`ParentModelID`),
-  KEY `idx_IsLive` (`IsLive`),
-  KEY `idx_Uploader_IsLive` (`Uploader`,`IsLive`),
+  KEY `idx_LifecycleStatus` (`LifecycleStatus`),
+  KEY `idx_SubmissionType` (`SubmissionType`),
+  KEY `idx_Audit_Lifecycle` (`AuditStatus`,`LifecycleStatus`),
+  KEY `idx_Audit_Lifecycle_Submission` (`AuditStatus`,`LifecycleStatus`,`SubmissionType`),
   CONSTRAINT `fk_ParentModel` FOREIGN KEY (`ParentModelID`) REFERENCES `model` (`ModelID`) ON DELETE SET NULL,
   CONSTRAINT `fk_Uploader` FOREIGN KEY (`Uploader`) REFERENCES `user` (`UserID`),
-  CONSTRAINT `chk_AuditStatus` CHECK ((`AuditStatus` in (_utf8mb4'PENDING',_utf8mb4'APPROVED',_utf8mb4'REJECTED')))
+  CONSTRAINT `chk_AuditStatus` CHECK ((`AuditStatus` in (_utf8mb4'PENDING',_utf8mb4'APPROVED',_utf8mb4'REJECTED'))),
+  CONSTRAINT `chk_LifecycleStatus` CHECK ((`LifecycleStatus` in (_utf8mb4'LIVE',_utf8mb4'LEGACY',_utf8mb4'STAGED'))),
+  CONSTRAINT `chk_SubmissionType` CHECK ((`SubmissionType` in (_utf8mb4'UPLOAD',_utf8mb4'UPDATE',_utf8mb4'APPEAL')))
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 正在导出表  ovss_db.model 的数据：~6 rows (大约)
 DELETE FROM `model`;
-INSERT INTO `model` (`ModelID`, `ModelName`, `ThumbnailAddress`, `FileAddress`, `Uploader`, `UploadTime`, `AuditStatus`, `Version`, `IsLive`, `ParentModelID`) VALUES
-	(1, '军用虎钳', '/thumbnails/jaw_vice_thumbnail.png', '/models/jaw_vice.glb', 1, '2025-11-07 16:39:50', 'APPROVED', 1, 1, NULL),
-	(2, '小方块', '/thumbnails/red_cube.png', '/models/red_cube.glb', 4, '2025-11-07 16:16:44', 'APPROVED', 1, 1, NULL),
-	(3, '测试上传新模型', '/thumbnails/f6e6cd38-7479-4013-934d-a8a46811dbe5.png', '/models/227232fc-3b4d-4678-ba01-76a297cf2825.glb', 4, '2025-11-11 19:33:35', 'APPROVED', 1, 1, NULL),
-	(4, '你应该考虑驳回该模型', '/thumbnails/a0e47b26-afd4-4c3a-b192-78d2d3512628.png', '/models/3fc83778-083b-4e5d-bbec-f785b8e665b7.glb', 4, '2025-11-11 19:33:19', 'REJECTED', 1, 0, NULL),
-	(9, '超级隐藏款！！！', '/thumbnails/16bae83d-1de4-4036-9f64-4665c5347d24.png', '/models/8387e891-734b-47c9-bb8e-53fd6eb47807.glb', 8, '2025-11-11 19:33:32', 'APPROVED', 1, 1, NULL),
-	(10, '测试一下缩略图压缩', '/thumbnails/8d3442c5-90fd-4099-aafe-b7bdc1f3acb5.png', '/models/c72e8bd3-2f51-46ab-b91b-029f8c20e60c.glb', 4, '2025-11-11 15:44:18', 'PENDING', 1, 0, NULL);
+INSERT INTO `model` (`ModelID`, `ModelName`, `ThumbnailAddress`, `FileAddress`, `Uploader`, `UploadTime`, `AuditStatus`, `LifecycleStatus`, `SubmissionType`, `Version`, `ParentModelID`) VALUES
+  (1, '军用虎钳', '/thumbnails/jaw_vice_thumbnail.png', '/models/jaw_vice.glb', 1, '2025-11-07 16:39:50', 'APPROVED', 'LIVE', 'UPLOAD', 1, NULL),
+  (2, '小方块', '/thumbnails/red_cube.png', '/models/red_cube.glb', 4, '2025-11-07 16:16:44', 'APPROVED', 'LIVE', 'UPLOAD', 1, NULL),
+  (3, '测试上传新模型', '/thumbnails/f6e6cd38-7479-4013-934d-a8a46811dbe5.png', '/models/227232fc-3b4d-4678-ba01-76a297cf2825.glb', 4, '2025-11-11 19:33:35', 'APPROVED', 'LIVE', 'UPLOAD', 1, NULL),
+  (4, '你应该考虑驳回该模型', '/thumbnails/a0e47b26-afd4-4c3a-b192-78d2d3512628.png', '/models/3fc83778-083b-4e5d-bbec-f785b8e665b7.glb', 4, '2025-11-11 19:33:19', 'REJECTED', 'STAGED', 'UPLOAD', 1, NULL),
+  (9, '超级隐藏款！！！', '/thumbnails/16bae83d-1de4-4036-9f64-4665c5347d24.png', '/models/8387e891-734b-47c9-bb8e-53fd6eb47807.glb', 8, '2025-11-11 19:33:32', 'APPROVED', 'LIVE', 'UPLOAD', 1, NULL),
+  (10, '测试一下缩略图压缩', '/thumbnails/8d3442c5-90fd-4099-aafe-b7bdc1f3acb5.png', '/models/c72e8bd3-2f51-46ab-b91b-029f8c20e60c.glb', 4, '2025-11-11 15:44:18', 'PENDING', 'STAGED', 'UPDATE', 2, 2);
 
 -- 导出  表 ovss_db.modeltag 结构
 DROP TABLE IF EXISTS `modeltag`;

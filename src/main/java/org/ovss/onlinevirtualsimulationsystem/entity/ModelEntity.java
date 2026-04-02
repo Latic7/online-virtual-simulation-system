@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ovss.onlinevirtualsimulationsystem.enumeration.AuditStatusEnum;
+import org.ovss.onlinevirtualsimulationsystem.enumeration.LifecycleStatusEnum;
+import org.ovss.onlinevirtualsimulationsystem.enumeration.SubmissionTypeEnum;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -42,16 +44,19 @@ public class ModelEntity {
     @Enumerated(EnumType.STRING)
     private AuditStatusEnum auditStatus;
 
-    // 版本号由数据库默认值提供，暂不在应用层更新
-    @Column(name = "Version", nullable = false, insertable = false, updatable = false)
+    @Column(name = "LifecycleStatus", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private LifecycleStatusEnum lifecycleStatus;
+
+    @Column(name = "SubmissionType", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private SubmissionTypeEnum submissionType;
+
+    @Column(name = "Version", nullable = false)
     private Integer version;
 
-    // 允许应用层更新 IsLive（上线/下线）
-    @Column(name = "IsLive", nullable = false)
-    private Boolean isLive;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ParentModelID", insertable = false, updatable = false)
+    @JoinColumn(name = "ParentModelID")
     private ModelEntity parentModel;
 
     @OneToMany(mappedBy = "model")
@@ -59,9 +64,5 @@ public class ModelEntity {
 
     public void setParentModel(ModelEntity parentModel) {
         this.parentModel = parentModel;
-    }
-
-    public void setIsLive(boolean isLive) {
-        this.isLive = isLive;
     }
 }

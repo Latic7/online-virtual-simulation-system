@@ -4,294 +4,593 @@
     <title>管理员工作台</title>
     <meta charset="UTF-8">
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 0;
-            background-color: #f4f4f9;
-            color: #333;
+        :root {
+            --bg-a: #f6eee3;
+            --bg-b: #f3dfcb;
+            --ink: #291d13;
+            --muted: #665742;
+            --admin: #a33e22;
+            --admin-deep: #742814;
+            --card: rgba(255, 250, 243, 0.9);
+            --line: rgba(94, 63, 37, 0.22);
+            --ok: #1f7a42;
+            --warn: #be7a12;
+            --danger: #b9352e;
+            --shadow: 0 16px 38px rgba(80, 52, 27, 0.14);
         }
-        .navbar {
-            background-color: #db5858; /* Orange-red for admin */
-            padding: 15px 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Noto Serif SC", "STSong", "Songti SC", serif;
+            margin: 0;
+            color: var(--ink);
+            background: radial-gradient(circle at 12% 7%, #fff7eb 0, transparent 26%),
+                        radial-gradient(circle at 86% 12%, #f7ddc1 0, transparent 24%),
+                        linear-gradient(140deg, var(--bg-a), var(--bg-b));
+            min-height: 100vh;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            padding: 14px 22px;
+            background: rgba(245, 231, 214, 0.9);
+            border-bottom: 1px solid var(--line);
+            backdrop-filter: blur(8px);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            animation: fadeDrop 0.5s ease;
         }
-        .navbar-brand {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #fff;
+
+        .brand {
+            font-size: clamp(22px, 2.2vw, 32px);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--admin-deep);
             text-decoration: none;
+            font-weight: 700;
         }
-        .nav-links {
+
+        .actions {
             display: flex;
             align-items: center;
+            gap: 10px;
         }
-        .nav-links span {
-            margin-right: 15px;
-            font-weight: bold;
-            color: #fff;
+
+        .welcome {
+            font-size: 14px;
+            color: var(--muted);
+            border: 1px dashed var(--line);
+            border-radius: 999px;
+            padding: 8px 12px;
         }
-        .nav-links button {
-            margin-left: 10px;
-            padding: 8px 15px;
+
+        .btn {
+            border: none;
+            border-radius: 999px;
+            padding: 10px 16px;
             cursor: pointer;
-            border: 1px solid #fff;
-            background-color: transparent;
+            font-size: 14px;
+            font-family: inherit;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(70, 42, 17, 0.16);
+        }
+
+        .btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-danger {
+            background: var(--danger);
             color: #fff;
+        }
+
+        .btn-approve {
+            background: var(--ok);
+            color: #fff;
+        }
+
+        .btn-reject {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: #faf2e7;
+            color: var(--ink);
+            border: 1px solid var(--line);
+        }
+
+        .page {
+            width: min(1200px, calc(100% - 28px));
+            margin: 24px auto 48px;
+        }
+
+        .hero {
+            background: var(--card);
+            border: 1px solid var(--line);
             border-radius: 20px;
-            transition: background-color 0.3s, color 0.3s;
+            box-shadow: var(--shadow);
+            padding: 18px;
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+            animation: rise 0.55s ease;
         }
-        .nav-links button:hover {
-            background-color: #fff;
-            color: #db5858;
+
+        .hero h1 {
+            margin: 0 0 8px;
+            font-size: clamp(26px, 3vw, 38px);
+            color: var(--admin-deep);
         }
-        .container {
-            padding: 30px;
+
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+            max-width: 58ch;
         }
-        h1 {
-            color: #db5858;
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(80px, 1fr));
+            gap: 10px;
         }
-        .controls {
-            margin-bottom: 20px;
+
+        .stat {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 23px;
+            color: var(--admin-deep);
+        }
+
+        .stat span {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .view-shell {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 14px;
+            margin-bottom: 16px;
+            animation: rise 0.6s ease;
+        }
+
+        #filterForm {
+            display: grid;
+            grid-template-columns: 1.8fr minmax(150px, 1fr) auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .field {
+            display: grid;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--ink);
+            background: #fff;
+        }
+
+        .folder-tabs {
             display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 6px;
         }
-        .controls label {
-            margin-right: 5px;
-        }
-        .controls select, .controls input[type="text"] {
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-        .controls button {
-            padding: 8px 15px;
+
+        .folder-tab {
+            border: 1px solid var(--line);
+            border-bottom: none;
+            background: #f3e6d5;
+            color: var(--muted);
+            border-top-left-radius: 14px;
+            border-top-right-radius: 14px;
+            padding: 10px 14px;
+            min-width: 120px;
+            text-align: center;
+            white-space: nowrap;
             cursor: pointer;
-            border: 1px solid #ddd;
-            background-color: #fff;
-            border-radius: 20px;
+            transform: translateY(6px);
+            transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+            font-size: 13px;
+            font-weight: 600;
         }
+
+        .folder-tab.active {
+            background: #fffdf8;
+            color: var(--ink);
+            transform: translateY(0);
+            box-shadow: 0 -6px 14px rgba(80, 52, 27, 0.09);
+        }
+
+        .folder-tab:hover {
+            transform: translateY(2px);
+        }
+
+        .results-pane {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            border-top-left-radius: 0;
+            background: rgba(255, 252, 247, 0.6);
+            padding: 12px;
+        }
+
+        .view-panel {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            border-top-left-radius: 0;
+            background: rgba(255, 252, 247, 0.72);
+            padding: 12px;
+            display: grid;
+            gap: 10px;
+        }
+
         .model-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
         }
+
         .model-card {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            animation: rise 0.5s ease;
         }
+
         .model-card img {
             width: 100%;
-            height: 150px;
+            height: 170px;
             object-fit: cover;
+            display: block;
         }
+
+        .model-link {
+            text-decoration: none;
+        }
+
         .model-info {
-            padding: 15px;
-            flex-grow: 1;
+            padding: 14px;
+            display: grid;
+            gap: 8px;
+            color: var(--ink);
         }
+
         .model-info h3 {
-            margin: 0 0 10px;
-            font-size: 1.1em;
+            margin: 0;
+            font-size: 20px;
         }
+
         .model-meta {
-            font-size: 0.85em;
-            color: #666;
-        }
-        .model-meta p {
-            margin: 5px 0;
-        }
-        .model-actions {
-            padding: 0 15px 15px;
+            font-size: 13px;
+            color: var(--muted);
             display: flex;
-            gap: 10px;
+            flex-direction: column;
+            gap: 5px;
         }
-        .model-actions button {
-            padding: 8px 12px;
-            cursor: pointer;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            width: 100%;
+
+        .pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
         }
-        .model-actions .approve-btn {
-            background-color: #28a745;
-            color: white;
-            border-color: #28a745;
+
+        .tag-badge,
+        .status-badge,
+        .life-badge,
+        .submission-badge {
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
         }
-        .model-actions .reject-btn {
-            background-color: #dc3545;
-            color: white;
-            border-color: #dc3545;
-        }
-        .model-actions button:disabled {
-            background-color: #ccc;
-            border-color: #ccc;
-            cursor: not-allowed;
-        }
-        .status-badge {
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: bold;
-            color: #fff;
-            display: inline-block;
-            margin-top: 5px;
-        }
-        .status-PENDING { background-color: #ffc107; color: #333; }
-        .status-APPROVED { background-color: #28a745; }
-        .status-REJECTED { background-color: #dc3545; }
+
         .tag-badge {
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: bold;
-            color: #fff;
-            display: inline-block;
-            margin-top: 5px;
-            background-color: #007bff;
-            margin-right: 5px;
+            background: rgba(41, 127, 116, 0.12);
+            color: #266f65;
+            border: 1px solid rgba(41, 127, 116, 0.25);
         }
-        /* Modal Styles */
+
+        .status-PENDING { background: rgba(190, 122, 18, 0.12); color: #8f5908; border: 1px solid rgba(190, 122, 18, 0.24); }
+        .status-APPROVED { background: rgba(31, 122, 66, 0.12); color: var(--ok); border: 1px solid rgba(31, 122, 66, 0.25); }
+        .status-REJECTED { background: rgba(185, 53, 46, 0.12); color: var(--danger); border: 1px solid rgba(185, 53, 46, 0.24); }
+
+        .life-badge { background: rgba(110, 96, 66, 0.12); color: #5b4b32; border: 1px solid rgba(110, 96, 66, 0.3); }
+        .submission-badge { background: rgba(72, 83, 160, 0.12); color: #3b4487; border: 1px solid rgba(72, 83, 160, 0.26); }
+
+        .model-actions {
+            display: flex;
+            gap: 8px;
+            padding: 0 14px 14px;
+            margin-top: auto;
+        }
+
+        .model-actions .btn {
+            width: 100%;
+            font-size: 13px;
+            padding: 9px 10px;
+        }
+
+        .empty-state {
+            background: var(--card);
+            border: 1px dashed var(--line);
+            border-radius: 14px;
+            padding: 30px;
+            text-align: center;
+            color: var(--muted);
+        }
+
         .modal {
             display: none;
             position: fixed;
+            inset: 0;
             z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background: rgba(45, 29, 13, 0.4);
             justify-content: center;
             align-items: center;
+            padding: 14px;
         }
+
+        .modal[style*="display: none"] {
+            display: none !important;
+        }
+
         .modal-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 90%;
-            max-width: 400px;
+            width: min(450px, 100%);
+            background: #fffdf8;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 18px;
             text-align: center;
         }
+
         .modal-content h2 {
-            margin-top: 0;
-            font-size: 1.25rem;
-            font-weight: 600;
+            margin: 0 0 8px;
+            font-size: 24px;
         }
+
         .modal-content p {
-            margin-bottom: 20px;
+            margin: 0;
+            color: var(--muted);
         }
-        .modal-actions button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            margin: 0 10px;
-            min-width: 100px;
+
+        .modal-actions {
+            margin-top: 14px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
         }
-        #confirmLogoutBtn {
-            background-color: #dc3545;
-            color: white;
+
+        @media (max-width: 980px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            #filterForm {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            #filterForm .field:first-child {
+                grid-column: 1 / -1;
+            }
+
+            #filterForm .btn {
+                grid-column: 1 / -1;
+            }
         }
-        #cancelLogoutBtn {
-            background-color: #f0f0f0;
+
+        @media (max-width: 700px) {
+            .topbar {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .actions {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .welcome {
+                width: 100%;
+                text-align: center;
+            }
+
+            #filterForm {
+                grid-template-columns: 1fr;
+            }
+
+            .model-actions {
+                flex-direction: column;
+            }
+        }
+
+        @keyframes rise {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeDrop {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="navbar">
-    <a href="/admin/dashboard" class="navbar-brand">管理员工作台</a>
-    <div class="nav-links">
-        <span th:text="'欢迎，' + ${username}"></span>
-        <button onclick="handleLogout()">注销</button>
+<header class="topbar">
+    <a href="/admin/dashboard" class="brand">OVSS Admin</a>
+    <div class="actions">
+        <span class="welcome" th:text="'欢迎，' + ${username}"></span>
+        <button class="btn btn-danger" onclick="handleLogout()">注销</button>
     </div>
-</div>
+</header>
 
-<div class="container">
-    <h1>所有模型</h1>
-    <div class="controls">
-        <form id="filterForm" th:action="@{/admin/dashboard}" method="get" class="controls">
-            <div>
-                <label for="search">搜索:</label>
-                <input type="text" id="search" name="search" placeholder="搜索..." th:value="${search}">
+<main class="page">
+    <section class="hero">
+        <div>
+            <h1>管理员审核中心</h1>
+            <p>对模型进行审核、驳回和申诉复审。保留现有业务流程，优化信息密度和可操作性。</p>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <strong id="stat-pending-review" th:text="${pendingReviewCount}">0</strong>
+                <span>待审核模型</span>
             </div>
-            <div>
-                <label for="sort">排序方式:</label>
-                <select id="sort" name="sort" onchange="this.form.submit()">
-                    <option value="uploadTime,desc" th:selected="${sort.equalsIgnoreCase('uploadTime,desc')}">最新上传</option>
-                    <option value="uploadTime,asc" th:selected="${sort.equalsIgnoreCase('uploadTime,asc')}">最早上传</option>
-                </select>
+            <div class="stat">
+                <strong id="stat-appealing" th:text="${appealingCount}">0</strong>
+                <span>待重审模型</span>
             </div>
-            <div>
-                <label for="status">审核状态:</label>
-                <select id="status" name="status" onchange="this.form.submit()">
-                    <option value="" th:selected="${status == null}">所有状态</option>
-                    <option value="PENDING" th:selected="${status == 'PENDING'}">待审核</option>
-                    <option value="APPROVED" th:selected="${status == 'APPROVED'}">审核通过</option>
-                    <option value="REJECTED" th:selected="${status == 'REJECTED'}">被驳回</option>
-                </select>
-            </div>
-            <button type="submit">筛选</button>
-        </form>
-    </div>
-
-    <div class="model-grid">
-        <div th:each="model : ${models}" class="model-card">
-            <div>
-                <a th:href="@{/model/{modelId}(modelId=${model.modelId})}">
-                    <img th:src="${model.thumbnailUrl + '?t=' + #dates.createNow().getTime()}" alt="Thumbnail"/>
-                </a>
-                <div class="model-info">
-                    <h3 th:text="${model.modelName}">Model Name</h3>
-                    <div class="model-meta">
-                        <p th:text="'上传者: ' + ${model.uploaderName}"></p>
-                        <p th:text="'上传时间: ' + ${#temporals.format(model.uploadTime, 'yyyy-MM-dd')}"></p>
-                        <p>
-                            标签：
-                            <span th:each="tag : ${model.tags}" th:text="${tag}" class="tag-badge"></span>
-                        </p>
-                        <p>状态: <span class="status-badge" th:classappend="'status-' + ${model.auditStatus}" th:text="${model.auditStatus}"></span></p>
-                    </div>
-                </div>
-            </div>
-            <div class="model-actions">
-                <button class="approve-btn"
-                        th:attr="data-model-id=${model.modelId}"
-                        th:disabled="${model.auditStatus == 'APPROVED' or model.auditStatus == 'REJECTED'}"
-                        onclick="handleApprove(this)">批准</button>
-                <button class="reject-btn"
-                        th:attr="data-model-id=${model.modelId}"
-                        th:disabled="${model.auditStatus == 'REJECTED'}"
-                        onclick="handleReject(this)">驳回</button>
+            <div class="stat">
+                <strong id="stat-rejected" th:text="${rejectedModelsCount}">0</strong>
+                <span>已驳回模型</span>
             </div>
         </div>
-    </div>
-</div>
+    </section>
 
-<!-- Logout Confirmation Modal -->
+    <section class="view-shell">
+        <div class="folder-tabs" aria-label="管理视图">
+            <button type="button" class="folder-tab" th:classappend="${filterType == 'PENDING_REVIEW'} ? ' active' : ''" data-filter-type="PENDING_REVIEW">待审核的模型</button>
+            <button type="button" class="folder-tab" th:classappend="${filterType == 'APPEALING'} ? ' active' : ''" data-filter-type="APPEALING">申诉中的模型</button>
+            <button type="button" class="folder-tab" th:classappend="${filterType == 'REJECTED'} ? ' active' : ''" data-filter-type="REJECTED">被驳回的模型</button>
+        </div>
+
+        <div class="view-panel">
+            <form id="filterForm" th:action="@{/admin/dashboard}" method="get">
+                <input type="hidden" id="filterType" name="filterType" th:value="${filterType}">
+                <div class="field">
+                    <label for="search">搜索</label>
+                    <input type="text" id="search" name="search" placeholder="搜索..." th:value="${search}">
+                </div>
+                <div class="field">
+                    <label for="sort">排序方式</label>
+                    <select id="sort" name="sort" onchange="this.form.submit()">
+                        <option value="uploadTime,desc" th:selected="${sort.equalsIgnoreCase('uploadTime,desc')}">最新上传</option>
+                        <option value="uploadTime,asc" th:selected="${sort.equalsIgnoreCase('uploadTime,asc')}">最早上传</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-secondary">筛选</button>
+            </form>
+
+            <div class="results-pane">
+                <section class="model-grid" th:if="${!#lists.isEmpty(models)}">
+                    <article th:each="model : ${models}" class="model-card" data-model-item>
+                        <a class="model-link" th:href="@{/model/{modelId}(modelId=${model.modelId})}">
+                            <img th:src="${model.thumbnailUrl + '?t=' + #dates.createNow().getTime()}" alt="Thumbnail"/>
+                            <div class="model-info">
+                                <h3 th:text="${model.modelName}">Model Name</h3>
+                                <div class="model-meta">
+                                    <span th:text="'上传者：' + ${model.uploaderName}"></span>
+                                    <span th:text="'上传时间：' + ${#temporals.format(model.uploadTime, 'yyyy-MM-dd')}"></span>
+                                    <div class="pill-row">
+                                        <span th:each="tag : ${model.tags}" th:text="${tag}" class="tag-badge"></span>
+                                    </div>
+                                    <div class="pill-row">
+                                        <span class="status-badge" th:classappend="'status-' + ${model.auditStatus}" th:text="${model.auditStatus}"></span>
+                                        <span class="life-badge" th:text="${model.lifecycleStatus}"></span>
+                                        <span class="submission-badge" th:text="${model.submissionType}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <div class="model-actions">
+                            <button class="btn btn-approve"
+                                    th:attr="data-model-id=${model.modelId}"
+                                    th:disabled="${model.auditStatus == 'APPROVED' or model.auditStatus == 'REJECTED'}"
+                                    onclick="handleApprove(this)">批准</button>
+                            <button class="btn btn-reject"
+                                    th:attr="data-model-id=${model.modelId}"
+                                    th:disabled="${model.auditStatus == 'REJECTED'}"
+                                    onclick="handleReject(this)">驳回</button>
+                        </div>
+                    </article>
+                </section>
+
+                <section class="empty-state" th:if="${#lists.isEmpty(models)}">
+                    当前筛选下没有模型记录，调整筛选条件后重试。
+                </section>
+            </div>
+        </div>
+    </section>
+</main>
+
 <div id="logoutConfirmModal" class="modal">
     <div class="modal-content">
         <h2>确认注销</h2>
         <p>您确定要注销吗？</p>
         <div class="modal-actions">
-            <button id="cancelLogoutBtn">取消</button>
-            <button id="confirmLogoutBtn">确认</button>
+            <button id="cancelLogoutBtn" class="btn btn-secondary">取消</button>
+            <button id="confirmLogoutBtn" class="btn btn-danger">确认</button>
         </div>
     </div>
 </div>
 
 <script>
+    function bindModalBackdropClose(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) {
+            return;
+        }
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
+
     function handleLogout() {
         const modal = document.getElementById('logoutConfirmModal');
         modal.style.display = 'flex';
@@ -306,12 +605,16 @@
         };
 
         document.getElementById('cancelLogoutBtn').onclick = () => modal.style.display = 'none';
-        window.onclick = (event) => {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        };
     }
+
+    const filterForm = document.getElementById('filterForm');
+    const filterTypeInput = document.getElementById('filterType');
+    document.querySelectorAll('.folder-tab').forEach((tab) => {
+        tab.addEventListener('click', () => {
+            filterTypeInput.value = tab.getAttribute('data-filter-type');
+            filterForm.submit();
+        });
+    });
 
     async function handleApprove(button) {
         const modelId = button.getAttribute('data-model-id');
@@ -336,6 +639,8 @@
             alert('操作失败: ' + result.message);
         }
     }
+
+    bindModalBackdropClose('logoutConfirmModal');
 </script>
 
 </body>

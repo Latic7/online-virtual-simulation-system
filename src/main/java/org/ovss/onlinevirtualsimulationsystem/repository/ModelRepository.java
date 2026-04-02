@@ -2,6 +2,8 @@ package org.ovss.onlinevirtualsimulationsystem.repository;
 
 import org.ovss.onlinevirtualsimulationsystem.entity.ModelEntity;
 import org.ovss.onlinevirtualsimulationsystem.enumeration.AuditStatusEnum;
+import org.ovss.onlinevirtualsimulationsystem.enumeration.LifecycleStatusEnum;
+import org.ovss.onlinevirtualsimulationsystem.enumeration.SubmissionTypeEnum;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,37 +17,74 @@ public interface ModelRepository extends JpaRepository<ModelEntity, Long> {
             "LEFT JOIN m.uploader u " +
             "LEFT JOIN m.tags mt " +
             "LEFT JOIN mt.tag t " +
-            "WHERE m.isLive = true AND m.auditStatus = 'APPROVED' AND (" +
+            "WHERE m.lifecycleStatus = 'LIVE' AND (" +
             "LOWER(m.modelName) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(u.userName) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(t.tagName) LIKE LOWER(CONCAT('%', :search, '%')))")
     List<ModelEntity> searchModels(@Param("search") String search, Sort sort);
 
-    @Query("SELECT DISTINCT m FROM ModelEntity m " +
-            "LEFT JOIN m.uploader u " +
-            "LEFT JOIN m.tags mt " +
-            "LEFT JOIN mt.tag t " +
-            "WHERE (:status IS NULL OR m.auditStatus = :status) AND (" +
-            "(:search IS NULL OR :search = '') OR " +
-            "LOWER(m.modelName) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(u.userName) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(t.tagName) LIKE LOWER(CONCAT('%', :search, '%')))")
-    List<ModelEntity> searchAllModelsForAdmin(@Param("search") String search, @Param("status") AuditStatusEnum status, Sort sort);
-
-    @Query("SELECT m FROM ModelEntity m WHERE m.isLive = true AND m.auditStatus = 'APPROVED'")
+    @Query("SELECT m FROM ModelEntity m WHERE m.lifecycleStatus = 'LIVE'")
     List<ModelEntity> findAll(Sort sort);
-
-    @Query("SELECT m FROM ModelEntity m WHERE m.uploader.userId = :userId AND (:status IS NULL OR m.auditStatus = :status)")
-    List<ModelEntity> findByUploader_UserIdAndAuditStatus(@Param("userId") Long userId, @Param("status") AuditStatusEnum status, Sort sort);
 
     @Query("SELECT DISTINCT m FROM ModelEntity m " +
             "LEFT JOIN m.tags mt " +
             "LEFT JOIN mt.tag t " +
             "WHERE m.uploader.userId = :userId " +
-            "AND (:status IS NULL OR m.auditStatus = :status) " +
-            "AND (LOWER(m.modelName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "AND (:auditStatus IS NULL OR m.auditStatus = :auditStatus) " +
+            "AND (:lifecycleStatus IS NULL OR m.lifecycleStatus = :lifecycleStatus) " +
+            "AND (:submissionType IS NULL OR m.submissionType = :submissionType) " +
+            "AND (:excludedSubmissionType IS NULL OR m.submissionType <> :excludedSubmissionType) " +
+            "AND ((:search IS NULL OR :search = '') OR " +
+            "LOWER(m.modelName) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(t.tagName) LIKE LOWER(CONCAT('%', :search, '%')))")
-    List<ModelEntity> searchMyModels(@Param("userId") Long userId, @Param("search") String search, @Param("status") AuditStatusEnum status, Sort sort);
+    List<ModelEntity> searchMyModelsByFilter(@Param("userId") Long userId,
+                                             @Param("search") String search,
+                                             @Param("auditStatus") AuditStatusEnum auditStatus,
+                                             @Param("lifecycleStatus") LifecycleStatusEnum lifecycleStatus,
+                                             @Param("submissionType") SubmissionTypeEnum submissionType,
+                                             @Param("excludedSubmissionType") SubmissionTypeEnum excludedSubmissionType,
+                                             Sort sort);
+
+    @Query("SELECT DISTINCT m FROM ModelEntity m " +
+            "LEFT JOIN m.uploader u " +
+            "LEFT JOIN m.tags mt " +
+            "LEFT JOIN mt.tag t " +
+            "WHERE (:auditStatus IS NULL OR m.auditStatus = :auditStatus) " +
+            "AND (:lifecycleStatus IS NULL OR m.lifecycleStatus = :lifecycleStatus) " +
+            "AND (:submissionType IS NULL OR m.submissionType = :submissionType) " +
+            "AND (:excludedSubmissionType IS NULL OR m.submissionType <> :excludedSubmissionType) " +
+            "AND ((:search IS NULL OR :search = '') OR " +
+            "LOWER(m.modelName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(u.userName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(t.tagName) LIKE LOWER(CONCAT('%', :search, '%')))")
+    List<ModelEntity> searchAllModelsForAdminByFilter(@Param("search") String search,
+                                                      @Param("auditStatus") AuditStatusEnum auditStatus,
+                                                      @Param("lifecycleStatus") LifecycleStatusEnum lifecycleStatus,
+                                                      @Param("submissionType") SubmissionTypeEnum submissionType,
+                                                      @Param("excludedSubmissionType") SubmissionTypeEnum excludedSubmissionType,
+                                                      Sort sort);
 
     boolean existsByUploaderAndModelName(org.ovss.onlinevirtualsimulationsystem.entity.UserEntity uploader, String modelName);
+
+        boolean existsByParentModelAndAuditStatusAndLifecycleStatus(ModelEntity parentModel, AuditStatusEnum auditStatus, LifecycleStatusEnum lifecycleStatus);
+
+        long countByUploader_UserId(Long userId);
+
+        long countByUploader_UserIdAndAuditStatus(Long userId, AuditStatusEnum auditStatus);
+
+        long countByUploader_UserIdAndLifecycleStatus(Long userId, LifecycleStatusEnum lifecycleStatus);
+
+        long countByAuditStatus(AuditStatusEnum auditStatus);
+
+        @Query("SELECT COUNT(m) FROM ModelEntity m " +
+                        "WHERE m.auditStatus = :auditStatus " +
+                        "AND m.lifecycleStatus = :lifecycleStatus " +
+                        "AND m.submissionType <> :excludedSubmissionType")
+        long countByAuditStatusAndLifecycleStatusAndSubmissionTypeNot(@Param("auditStatus") AuditStatusEnum auditStatus,
+                                                                                                                                  @Param("lifecycleStatus") LifecycleStatusEnum lifecycleStatus,
+                                                                                                                                  @Param("excludedSubmissionType") SubmissionTypeEnum excludedSubmissionType);
+
+        long countByAuditStatusAndLifecycleStatusAndSubmissionType(AuditStatusEnum auditStatus,
+                                                                                                                           LifecycleStatusEnum lifecycleStatus,
+                                                                                                                           SubmissionTypeEnum submissionType);
 }

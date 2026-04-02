@@ -3,273 +3,679 @@
 <head>
     <meta charset="UTF-8">
     <title>个人主页</title>
-    <link rel="stylesheet" href="/css/style.css">
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 0;
-            background-color: #f4f4f9;
-            color: #333;
-        }
-        .navbar {
-            background-color: #fff;
-            padding: 15px 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .navbar-brand {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #333;
-            text-decoration: none;
-        }
-        .nav-links {
-            display: flex;
-            align-items: center;
-        }
-        .nav-links span {
-            margin-right: 15px;
-            font-weight: bold;
-        }
-        .nav-links button {
-            margin-left: 10px;
-            padding: 8px 15px;
-            cursor: pointer;
-            border: 1px solid #ddd;
-            background-color: #fff;
-            border-radius: 20px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .nav-links button:hover {
-            background-color: #007bff;
-            color: #fff;
-            border-color: #007bff;
-        }
-        .container {
-            padding: 30px;
-        }
-        .controls {
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        .controls label {
-            margin-right: 5px;
-        }
-        .controls select, .controls input[type="text"] {
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-        .controls button {
-            padding: 8px 15px;
-            cursor: pointer;
-            border: 1px solid #ddd;
-            background-color: #fff;
-            border-radius: 20px;
-        }
-        .model-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        .model-card {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            overflow: hidden;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .model-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-        .model-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-        }
-        .model-info {
-            padding: 15px;
-            flex-grow: 1;
-        }
-        .model-info h3 {
-            margin: 0 0 10px;
-            font-size: 1.1em;
-        }
-        .model-meta {
-            font-size: 0.85em;
-            color: #666;
-        }
-        .model-meta p {
-            margin: 5px 0;
-        }
-        .model-actions {
-            padding: 0 15px 15px;
-            display: flex;
-            gap: 10px;
-        }
-        .model-actions button {
-            padding: 8px 12px;
-            cursor: pointer;
-            border: 1px solid #ddd;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            width: 100%;
-        }
-        .model-actions .update-btn {
-            background-color: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        .model-actions .delete-btn {
-            background-color: #dc3545;
-            color: white;
-            border-color: #dc3545;
-        }
-        .status-badge {
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: bold;
-            color: #fff;
-            display: inline-block;
-            margin-top: 5px;
-        }
-        .status-PENDING { background-color: #ffc107; color: #333 }
-        .status-APPROVED { background-color: #28a745; }
-        .status-REJECTED { background-color: #dc3545; }
-        .tag-badge {
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: bold;
-            color: #fff;
-            display: inline-block;
-            margin-top: 5px;
-            background-color: #007bff;
-            margin-right: 5px;
+        :root {
+            --bg-a: #f7f2e8;
+            --bg-b: #f0e2cc;
+            --ink: #2a2318;
+            --muted: #6a5f4b;
+            --brand: #bd4f2c;
+            --brand-deep: #8e361c;
+            --accent: #2b6a62;
+            --card: rgba(255, 252, 247, 0.86);
+            --line: rgba(82, 64, 41, 0.2);
+            --danger: #b9352e;
+            --warning: #cc7a00;
+            --success: #1f7a42;
+            --shadow: 0 16px 40px rgba(72, 48, 24, 0.14);
+            --radius-lg: 20px;
+            --radius-md: 14px;
         }
 
-        /* Modal Styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Noto Serif SC", "STSong", "Songti SC", serif;
+            margin: 0;
+            color: var(--ink);
+            background: radial-gradient(circle at 15% 12%, #fff7ea 0, transparent 28%),
+                        radial-gradient(circle at 88% 8%, #f4dbc4 0, transparent 24%),
+                        linear-gradient(140deg, var(--bg-a), var(--bg-b));
+            min-height: 100vh;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(8px);
+            background: rgba(252, 244, 232, 0.86);
+            border-bottom: 1px solid var(--line);
+            padding: 14px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeDrop 0.5s ease;
+        }
+
+        .brand {
+            font-size: clamp(20px, 2vw, 30px);
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: var(--brand-deep);
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .welcome {
+            font-size: 14px;
+            color: var(--muted);
+            padding: 7px 12px;
+            border: 1px dashed var(--line);
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 999px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(55, 32, 10, 0.16);
+        }
+
+        .btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(130deg, var(--brand), var(--brand-deep));
+            color: #fff8f0;
+        }
+
+        .btn-secondary {
+            background: #f9f2e8;
+            color: var(--ink);
+            border: 1px solid var(--line);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .page {
+            width: min(1200px, calc(100% - 28px));
+            margin: 26px auto 48px;
+        }
+
+        .hero {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 18px;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 12px;
+            animation: rise 0.55s ease;
+        }
+
+        .hero h1 {
+            margin: 0 0 8px;
+            font-size: clamp(26px, 3vw, 38px);
+            line-height: 1.15;
+        }
+
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+            max-width: 56ch;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(80px, 1fr));
+            gap: 10px;
+        }
+
+        .stat {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 23px;
+            color: var(--brand-deep);
+        }
+
+        .stat span {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .view-shell {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            padding: 14px;
+            box-shadow: var(--shadow);
+            margin-bottom: 18px;
+            animation: rise 0.6s ease;
+        }
+
+        #filterForm {
+            display: grid;
+            grid-template-columns: 1.8fr minmax(150px, 1fr) auto auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .field {
+            display: grid;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            background: #fff;
+            color: var(--ink);
+            font-family: inherit;
+        }
+
+        .folder-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+        }
+
+        .folder-tab {
+            border: 1px solid var(--line);
+            border-bottom: none;
+            background: #f4e9d9;
+            color: var(--muted);
+            border-top-left-radius: 14px;
+            border-top-right-radius: 14px;
+            padding: 10px 14px;
+            min-width: 120px;
+            text-align: center;
+            white-space: nowrap;
+            cursor: pointer;
+            transform: translateY(6px);
+            transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .folder-tab.active {
+            background: #fffdf8;
+            color: var(--ink);
+            transform: translateY(0);
+            box-shadow: 0 -6px 14px rgba(72, 48, 24, 0.09);
+        }
+
+        .folder-tab:hover {
+            transform: translateY(2px);
+        }
+
+        .results-pane {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            border-top-left-radius: 0;
+            background: rgba(255, 252, 247, 0.6);
+            padding: 12px;
+        }
+
+        .view-panel {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            border-top-left-radius: 0;
+            background: rgba(255, 252, 247, 0.72);
+            padding: 12px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
+            gap: 16px;
+        }
+
+        .model-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.22s ease;
+            animation: rise 0.5s ease;
+        }
+
+        .model-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .model-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .model-card img {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .model-info {
+            padding: 14px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .model-info h3 {
+            margin: 0;
+            font-size: 20px;
+            line-height: 1.25;
+        }
+
+        .model-meta {
+            font-size: 13px;
+            color: var(--muted);
+            display: grid;
+            gap: 6px;
+        }
+
+        .pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tag-badge,
+        .status-badge,
+        .life-badge,
+        .submission-badge {
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .tag-badge {
+            background: rgba(43, 106, 98, 0.12);
+            color: var(--accent);
+            border: 1px solid rgba(43, 106, 98, 0.25);
+        }
+
+        .status-PENDING { background: rgba(204, 122, 0, 0.12); color: #855100; border: 1px solid rgba(204, 122, 0, 0.25); }
+        .status-APPROVED { background: rgba(31, 122, 66, 0.12); color: var(--success); border: 1px solid rgba(31, 122, 66, 0.25); }
+        .status-REJECTED { background: rgba(185, 53, 46, 0.12); color: var(--danger); border: 1px solid rgba(185, 53, 46, 0.24); }
+
+        .life-badge { background: rgba(110, 96, 66, 0.12); color: #5b4b32; border: 1px solid rgba(110, 96, 66, 0.3); }
+        .submission-badge { background: rgba(72, 83, 160, 0.12); color: #3b4487; border: 1px solid rgba(72, 83, 160, 0.26); }
+
+        .model-actions {
+            padding: 0 14px 14px;
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+        }
+
+        .model-actions .btn {
+            width: 100%;
+            padding: 9px 10px;
+            font-size: 13px;
+        }
+
+        .btn-ghost {
+            background: #fff;
+            border: 1px solid var(--line);
+            color: var(--ink);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: #fff;
+        }
+
+        .empty-state {
+            background: var(--card);
+            border: 1px dashed var(--line);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            text-align: center;
+            color: var(--muted);
+        }
+
         .modal {
             display: none;
             position: fixed;
+            inset: 0;
             z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background: rgba(45, 29, 13, 0.4);
             justify-content: center;
             align-items: center;
+            padding: 14px;
         }
+
+        .modal[style*="display: none"] {
+            display: none !important;
+        }
+
         .modal-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 90%;
-            max-width: 400px;
+            width: min(620px, 100%);
+            background: #fffdf8;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 18px;
+            max-height: 92vh;
+            overflow: auto;
+        }
+
+        .modal-content h2,
+        .modal-content h5 {
+            margin: 0 0 10px;
+            font-size: 24px;
+        }
+
+        .modal-content p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .mb-3 {
+            margin-top: 12px;
+            display: grid;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .form-control {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fff;
+            color: var(--ink);
+        }
+
+        .modal-actions {
+            margin-top: 14px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .modal-footer {
+            margin-top: 12px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        #logoutConfirmModal .modal-content {
+            width: min(450px, 100%);
             text-align: center;
         }
-        .modal-content h2 {
-            margin-top: 0;
-            font-size: 1.25rem;
-            font-weight: 600;
+
+        #logoutConfirmModal .modal-actions {
+            justify-content: center;
         }
-        .modal-content p {
-            margin-bottom: 20px;
+
+        #upload-error,
+        #update-error {
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--danger);
+            display: none;
         }
-        .modal-actions button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            margin: 0 10px;
-            min-width: 100px;
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
         }
-        #confirmLogoutBtn {
-            background-color: #dc3545;
-            color: white;
+
+        @media (max-width: 980px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            #filterForm {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            #filterForm .field:first-child {
+                grid-column: 1 / -1;
+            }
+
+            #filterForm .btn {
+                grid-column: 1 / -1;
+            }
         }
-        #cancelLogoutBtn {
-            background-color: #f0f0f0;
+
+        @media (max-width: 700px) {
+            .topbar {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .topbar-actions {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .welcome {
+                order: 3;
+                width: 100%;
+                text-align: center;
+            }
+
+            #filterForm {
+                grid-template-columns: 1fr;
+            }
+
+            .model-actions {
+                flex-wrap: wrap;
+            }
+
+            .model-actions .btn {
+                min-width: calc(50% - 4px);
+            }
+        }
+
+        @keyframes rise {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeDrop {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="navbar">
-    <a href="/home" class="navbar-brand">在线虚拟仿真系统OVSS</a>
-    <div class="nav-links">
-        <span th:text="'欢迎，' + ${username}"></span>
-        <button onclick="location.href='/home'">返回主页</button>
-        <button onclick="handleLogout()">注销</button>
+<header class="topbar">
+    <a href="/home" class="brand">OVSS Studio</a>
+    <div class="topbar-actions">
+        <span class="welcome" th:text="'欢迎，' + ${username}"></span>
+        <button class="btn btn-secondary" onclick="location.href='/home'">返回主页</button>
+        <button class="btn btn-danger" onclick="handleLogout()">注销</button>
     </div>
-</div>
+</header>
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="mb-0">我的模型</h1>
-        <button id="upload-model-btn" class="btn btn-primary">上传模型</button>
-    </div>
-    <div class="controls">
-        <form id="filterForm" th:action="@{/profile}" method="get" class="controls">
-            <div>
-                <label for="search">搜索:</label>
-                <input type="text" id="search" name="search" placeholder="搜索模型名、标签..." th:value="${search}">
+<main class="page">
+    <section class="hero">
+        <div>
+            <h1>我的模型工作台</h1>
+            <p>在这里管理上传、更新、申诉与历史版本。页面重构后保留原有业务功能，强化筛选与状态可见性。</p>
+        </div>
+        <div class="hero-stats">
+            <div class="stat">
+                <strong id="stat-total" th:text="${totalModelsCount}">0</strong>
+                <span>模型总量</span>
             </div>
-            <div>
-                <label for="sort">排序方式:</label>
-                <select id="sort" name="sort" onchange="this.form.submit()">
-                    <option value="uploadTime,desc" th:selected="${sort.equalsIgnoreCase('uploadTime,desc')}">最新上传</option>
-                    <option value="uploadTime,asc" th:selected="${sort.equalsIgnoreCase('uploadTime,asc')}">最早上传</option>
-                </select>
+            <div class="stat">
+                <strong id="stat-pending" th:text="${pendingModelsCount}">0</strong>
+                <span>审核中</span>
             </div>
-            <div>
-                <label for="status">审核状态:</label>
-                <select id="status" name="status" onchange="this.form.submit()">
-                    <option value="" th:selected="${status == ''}">所有状态</option>
-                    <option value="PENDING" th:selected="${status == 'PENDING'}">待审核</option>
-                    <option value="APPROVED" th:selected="${status == 'APPROVED'}">审核通过</option>
-                    <option value="REJECTED" th:selected="${status == 'REJECTED'}">被驳回</option>
-                </select>
+            <div class="stat">
+                <strong id="stat-live" th:text="${liveModelsCount}">0</strong>
+                <span>展示中</span>
             </div>
-            <button type="submit">筛选</button>
-        </form>
-    </div>
-    <div class="model-grid">
-        <div th:each="model : ${models}" class="model-card">
-            <a th:href="@{/model/{modelId}(modelId=${model.modelId})}" style="text-decoration: none; color: inherit;">
-                <img th:src="${model.thumbnailUrl + '?t=' + #dates.createNow().getTime()}" alt="Thumbnail"/>
-                <div class="model-info">
-                    <h3 th:text="${model.modelName}">Model Name</h3>
-                    <div class="model-meta">
-                        <p th:text="'上传时间：' + ${#temporals.format(model.uploadTime, 'yyyy-MM-dd')}"></p>
-                        <p>
-                            标签：
-                            <span th:each="tag : ${model.tags}" th:text="${tag}" class="tag-badge"></span>
-                        </p>
-                        <p>状态: <span class="status-badge" th:classappend="'status-' + ${model.auditStatus}" th:text="${model.auditStatus}"></span></p>
-                    </div>
+        </div>
+    </section>
+
+    <section class="view-shell">
+        <div class="folder-tabs" aria-label="模型视图">
+            <button type="button" class="folder-tab" th:classappend="${filterType == 'LIVE'} ? ' active' : ''" data-filter-type="LIVE">展示中的模型</button>
+            <button type="button" class="folder-tab" th:classappend="${filterType == 'UNDER_REVIEW'} ? ' active' : ''" data-filter-type="UNDER_REVIEW">审核中的模型</button>
+            <button type="button" class="folder-tab" th:classappend="${filterType == 'REJECTED'} ? ' active' : ''" data-filter-type="REJECTED">被驳回的模型</button>
+            <button type="button" class="folder-tab" th:classappend="${filterType == 'APPEALING'} ? ' active' : ''" data-filter-type="APPEALING">申诉中的模型</button>
+            <button type="button" class="folder-tab" th:classappend="${filterType == 'LEGACY'} ? ' active' : ''" data-filter-type="LEGACY">旧的模型</button>
+        </div>
+
+        <div class="view-panel">
+            <form id="filterForm" th:action="@{/profile}" method="get">
+                <input type="hidden" id="filterType" name="filterType" th:value="${filterType}">
+                <div class="field">
+                    <label for="search">搜索</label>
+                    <input type="text" id="search" name="search" placeholder="搜索模型名、标签..." th:value="${search}">
                 </div>
-            </a>
-            <div class="model-actions">
-                <button class="update-btn">更新</button>
-                <button class="delete-btn">删除</button>
+                <div class="field">
+                    <label for="sort">排序方式</label>
+                    <select id="sort" name="sort" onchange="this.form.submit()">
+                        <option value="uploadTime,desc" th:selected="${sort.equalsIgnoreCase('uploadTime,desc')}">最新上传</option>
+                        <option value="uploadTime,asc" th:selected="${sort.equalsIgnoreCase('uploadTime,asc')}">最早上传</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-secondary">筛选</button>
+                <button id="upload-model-btn" type="button" class="btn btn-primary">上传模型</button>
+            </form>
+
+            <div class="results-pane">
+                <section class="model-grid" th:if="${!#lists.isEmpty(models)}">
+                    <article th:each="model : ${models}" class="model-card" data-model-item>
+                        <a class="model-link" th:href="@{/model/{modelId}(modelId=${model.modelId})}">
+                            <img th:src="${model.thumbnailUrl + '?t=' + #dates.createNow().getTime()}" alt="Thumbnail"/>
+                            <div class="model-info">
+                                <h3 th:text="${model.modelName}">Model Name</h3>
+                                <div class="model-meta">
+                                    <span th:text="'上传时间：' + ${#temporals.format(model.uploadTime, 'yyyy-MM-dd')}"></span>
+                                    <div class="pill-row">
+                                        <span th:each="tag : ${model.tags}" th:text="${tag}" class="tag-badge"></span>
+                                    </div>
+                                    <div class="pill-row">
+                                        <span class="status-badge" th:classappend="'status-' + ${model.auditStatus}" th:text="${model.auditStatus}"></span>
+                                        <span class="life-badge" th:text="${model.lifecycleStatus}"></span>
+                                        <span class="submission-badge" th:text="${model.submissionType}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <div class="model-actions">
+                            <button class="btn btn-primary"
+                                th:if="${model.lifecycleStatus == 'LIVE'}"
+                                th:attr="data-model-id=${model.modelId}"
+                                onclick="openUpdateModal(this)">更新</button>
+                            <button class="btn btn-ghost" type="button">删除</button>
+                            <button class="btn btn-warning"
+                                    th:if="${model.auditStatus == 'REJECTED'}"
+                                    th:attr="data-model-id=${model.modelId}"
+                                    onclick="handleAppeal(this)">申诉</button>
+                        </div>
+                    </article>
+                </section>
+
+                <section class="empty-state" th:if="${#lists.isEmpty(models)}">
+                    当前筛选下没有模型记录，调整筛选条件后重试。
+                </section>
             </div>
+        </div>
+    </section>
+</main>
+
+<div id="update-model-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h2>提交模型更新</h2>
+        <p>字段可只填部分，但不能全部留空，且内容不能与旧版本完全重复。</p>
+        <form id="update-form" enctype="multipart/form-data">
+            <input type="hidden" id="updateModelId" name="updateModelId">
+            <div class="mb-3">
+                <label for="updateModelName" class="form-label">新模型名称（可选）</label>
+                <input type="text" class="form-control" id="updateModelName" name="modelName">
+            </div>
+            <div class="mb-3">
+                <label for="updateThumbnailFile" class="form-label">新缩略图（可选）</label>
+                <input type="file" class="form-control" id="updateThumbnailFile" name="thumbnailFile" accept=".png,.jpg,.jpeg">
+            </div>
+            <div class="mb-3">
+                <label for="updateModelFile" class="form-label">新模型文件（可选）</label>
+                <input type="file" class="form-control" id="updateModelFile" name="modelFile" accept=".glb,.gltf">
+            </div>
+            <div class="mb-3">
+                <label for="updateTags" class="form-label">新标签（可选，逗号分隔）</label>
+                <input type="text" class="form-control" id="updateTags" name="tags">
+            </div>
+            <div id="update-error"></div>
+        </form>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeUpdateModal()">取消</button>
+            <button type="button" class="btn btn-primary" id="submitUpdateBtn" onclick="submitUpdateRequest()">提交更新</button>
         </div>
     </div>
 </div>
@@ -279,48 +685,62 @@
         <h2>确认注销</h2>
         <p>您确定要注销吗？</p>
         <div class="modal-actions">
-            <button id="cancelLogoutBtn">取消</button>
-            <button id="confirmLogoutBtn">确认</button>
+            <button id="cancelLogoutBtn" class="btn btn-secondary">取消</button>
+            <button id="confirmLogoutBtn" class="btn btn-danger">确认</button>
         </div>
     </div>
 </div>
 
-<div id="upload-model-modal" class="modal" style="display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-    <div class="modal-dialog" style="margin: 10% auto;">
-        <div class="modal-content">
-            <div class="modal-header">
-<h5 class="modal-title">上传新模型</h5>
+<div id="upload-model-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h5 class="modal-title">上传新模型</h5>
+        <form id="upload-form" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="modelName" class="form-label">模型名称</label>
+                <input type="text" class="form-control" id="modelName" name="modelName" required>
             </div>
-            <div class="modal-body">
-                <form id="upload-form" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label for="modelName" class="form-label">模型名称</label>
-                        <input type="text" class="form-control" id="modelName" name="modelName" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="thumbnailFile" class="form-label">模型缩略图 (.png, .jpg)</label>
-                        <input type="file" class="form-control" id="thumbnailFile" name="thumbnailFile" accept=".png,.jpg,.jpeg" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="modelFile" class="form-label">模型文件 (.glb, .gltf)</label>
-                        <input type="file" class="form-control" id="modelFile" name="modelFile" accept=".glb,.gltf" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="tags" class="form-label">标签 (用逗号分隔)</label>
-                        <input type="text" class="form-control" id="tags" name="tags">
-                    </div>
-                    <div id="upload-error" class="alert alert-danger" style="display: none;"></div>
-                </form>
+            <div class="mb-3">
+                <label for="thumbnailFile" class="form-label">模型缩略图 (.png, .jpg)</label>
+                <input type="file" class="form-control" id="thumbnailFile" name="thumbnailFile" accept=".png,.jpg,.jpeg" required>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeUploadModal()">取消</button>
-                <button type="button" class="btn btn-primary" onclick="submitUploadForm()">提交</button>
+            <div class="mb-3">
+                <label for="modelFile" class="form-label">模型文件 (.glb, .gltf)</label>
+                <input type="file" class="form-control" id="modelFile" name="modelFile" accept=".glb,.gltf" required>
             </div>
+            <div class="mb-3">
+                <label for="tags" class="form-label">标签 (用逗号分隔)</label>
+                <input type="text" class="form-control" id="tags" name="tags">
+            </div>
+            <div id="upload-error"></div>
+        </form>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeUploadModal()">取消</button>
+            <button type="button" class="btn btn-primary" id="submitUploadBtn" onclick="submitUploadForm()">提交</button>
         </div>
     </div>
 </div>
 
 <script>
+    function setButtonLoading(button, loading, loadingText, defaultText) {
+        if (!button) {
+            return;
+        }
+        button.disabled = loading;
+        button.textContent = loading ? loadingText : defaultText;
+    }
+
+    function bindModalBackdropClose(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) {
+            return;
+        }
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
+
     function handleLogout() {
         const modal = document.getElementById('logoutConfirmModal');
         modal.style.display = 'flex';
@@ -335,15 +755,19 @@
         };
 
         document.getElementById('cancelLogoutBtn').onclick = () => modal.style.display = 'none';
-        window.onclick = (event) => {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        };
     }
 
+    const filterForm = document.getElementById('filterForm');
+    const filterTypeInput = document.getElementById('filterType');
+    document.querySelectorAll('.folder-tab').forEach((tab) => {
+        tab.addEventListener('click', () => {
+            filterTypeInput.value = tab.getAttribute('data-filter-type');
+            filterForm.submit();
+        });
+    });
+
     document.getElementById('upload-model-btn').addEventListener('click', function() {
-        document.getElementById('upload-model-modal').style.display = 'block';
+        document.getElementById('upload-model-modal').style.display = 'flex';
     });
 
     function closeUploadModal() {
@@ -352,10 +776,86 @@
         document.getElementById('upload-form').reset();
     }
 
+    function openUpdateModal(button) {
+        const modelId = button.getAttribute('data-model-id');
+        document.getElementById('updateModelId').value = modelId;
+        document.getElementById('update-model-modal').style.display = 'flex';
+        document.getElementById('update-error').style.display = 'none';
+        document.getElementById('update-form').reset();
+        document.getElementById('updateModelId').value = modelId;
+    }
+
+    function closeUpdateModal() {
+        document.getElementById('update-model-modal').style.display = 'none';
+        document.getElementById('update-error').style.display = 'none';
+        document.getElementById('update-form').reset();
+    }
+
+    async function submitUpdateRequest() {
+        const modelId = document.getElementById('updateModelId').value;
+        const name = document.getElementById('updateModelName').value.trim();
+        const tags = document.getElementById('updateTags').value.trim();
+        const thumbnailFileInput = document.getElementById('updateThumbnailFile');
+        const modelFileInput = document.getElementById('updateModelFile');
+        const errorDiv = document.getElementById('update-error');
+        const submitBtn = document.getElementById('submitUpdateBtn');
+
+        const hasName = name.length > 0;
+        const hasTags = tags.length > 0;
+        const hasThumbnail = thumbnailFileInput.files.length > 0;
+        const hasModelFile = modelFileInput.files.length > 0;
+
+        if (!hasName && !hasTags && !hasThumbnail && !hasModelFile) {
+            errorDiv.textContent = '请至少填写或上传一项更新内容。';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        const formData = new FormData();
+        if (hasName) {
+            formData.append('modelName', name);
+        }
+        if (hasTags) {
+            formData.append('tags', tags);
+        }
+        if (hasThumbnail) {
+            formData.append('thumbnailFile', thumbnailFileInput.files[0]);
+        }
+        if (hasModelFile) {
+            formData.append('modelFile', modelFileInput.files[0]);
+        }
+
+        setButtonLoading(submitBtn, true, '提交中...', '提交更新');
+        try {
+            const response = await fetch(`/api/models/${modelId}/update-request`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Authorization': 'Bearer ' + getCookie('jwt-token')
+                }
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                closeUpdateModal();
+                alert(result.message || '更新请求已提交，等待管理员审核。');
+                window.location.reload();
+            } else {
+                errorDiv.textContent = result.message || '提交更新失败，请稍后重试。';
+                errorDiv.style.display = 'block';
+            }
+        } finally {
+            setButtonLoading(submitBtn, false, '提交中...', '提交更新');
+        }
+    }
+
     function submitUploadForm() {
         const form = document.getElementById('upload-form');
         const formData = new FormData(form);
         const errorDiv = document.getElementById('upload-error');
+        const submitBtn = document.getElementById('submitUploadBtn');
+
+        setButtonLoading(submitBtn, true, '上传中...', '提交');
 
         fetch('/api/models/upload', {
             method: 'POST',
@@ -377,7 +877,28 @@
         .catch(error => {
             errorDiv.textContent = error.message || '上传失败，请重试。';
             errorDiv.style.display = 'block';
+        })
+        .finally(() => {
+            setButtonLoading(submitBtn, false, '上传中...', '提交');
         });
+    }
+
+    async function handleAppeal(button) {
+        const modelId = button.getAttribute('data-model-id');
+        const response = await fetch(`/api/models/${modelId}/appeal`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + getCookie('jwt-token')
+            }
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert(result.message || '申诉成功，模型已重新进入待审核状态。');
+            window.location.reload();
+        } else {
+            alert('申诉失败: ' + (result.message || '请稍后重试。'));
+        }
     }
 
     function getCookie(name) {
@@ -390,6 +911,10 @@
         }
         return null;
     }
+
+    bindModalBackdropClose('logoutConfirmModal');
+    bindModalBackdropClose('upload-model-modal');
+    bindModalBackdropClose('update-model-modal');
 </script>
 
 </body>

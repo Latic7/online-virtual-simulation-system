@@ -4,99 +4,201 @@
     <title>Home</title>
     <meta charset="UTF-8">
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 0;
-            background-color: #f4f4f9;
-            color: #333;
+        :root {
+            --bg-a: #f7f2e8;
+            --bg-b: #f0e2cc;
+            --ink: #2a2318;
+            --muted: #6a5f4b;
+            --brand: #bd4f2c;
+            --brand-deep: #8e361c;
+            --accent: #2b6a62;
+            --card: rgba(255, 252, 247, 0.9);
+            --line: rgba(82, 64, 41, 0.2);
+            --danger: #b9352e;
+            --shadow: 0 16px 40px rgba(72, 48, 24, 0.14);
         }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Noto Serif SC", "STSong", "Songti SC", serif;
+            margin: 0;
+            color: var(--ink);
+            background: radial-gradient(circle at 15% 12%, #fff7ea 0, transparent 28%),
+                        radial-gradient(circle at 88% 8%, #f4dbc4 0, transparent 24%),
+                        linear-gradient(140deg, var(--bg-a), var(--bg-b));
+            min-height: 100vh;
+        }
+
         .navbar {
-            background-color: #fff;
-            padding: 15px 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(8px);
+            background: rgba(252, 244, 232, 0.86);
+            border-bottom: 1px solid var(--line);
+            padding: 14px 22px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+
         .navbar-brand {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #333;
+            font-size: clamp(20px, 2vw, 30px);
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: var(--brand-deep);
             text-decoration: none;
+            text-transform: uppercase;
         }
+
         .nav-links {
             display: flex;
             align-items: center;
+            gap: 10px;
         }
+
         .nav-links span {
-            margin-right: 15px;
-            font-weight: bold;
+            font-size: 14px;
+            color: var(--muted);
+            padding: 7px 12px;
+            border: 1px dashed var(--line);
+            border-radius: 999px;
         }
+
         .nav-links button {
-            margin-left: 10px;
-            padding: 8px 15px;
+            padding: 10px 16px;
             cursor: pointer;
-            border: 1px solid #ddd;
-            background-color: #fff;
-            border-radius: 20px;
-            transition: background-color 0.3s, color 0.3s;
+            border: 1px solid var(--line);
+            background: #f9f2e8;
+            color: var(--ink);
+            border-radius: 999px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-family: inherit;
+            font-weight: 600;
         }
+
         .nav-links button:hover {
-            background-color: #007bff;
-            color: #fff;
-            border-color: #007bff;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(55, 32, 10, 0.16);
         }
+
         .container {
-            padding: 30px;
+            width: min(1200px, calc(100% - 28px));
+            margin: 26px auto 48px;
         }
+
+        .hero {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            margin: 0 0 8px;
+            font-size: clamp(26px, 3vw, 38px);
+            line-height: 1.15;
+        }
+
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+        }
+
         .controls {
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 14px;
+            box-shadow: var(--shadow);
+            margin-bottom: 18px;
         }
+
+        #filterForm {
+            display: grid;
+            grid-template-columns: minmax(160px, 200px) 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
         .controls label {
-            margin-right: 10px;
+            margin-right: 0;
+            margin-bottom: 6px;
+            display: block;
+            font-size: 13px;
+            color: var(--muted);
         }
-        .controls select {
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
+
+        .controls select,
+        .controls input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            font-family: inherit;
+            background: #fff;
+            color: var(--ink);
         }
+
+        .controls button[type="submit"] {
+            height: 42px;
+            padding: 0 16px;
+            border: none;
+            border-radius: 999px;
+            background: linear-gradient(130deg, var(--brand), var(--brand-deep));
+            color: #fff8f0;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
         .model-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
+            gap: 16px;
         }
+
         .model-card {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
             overflow: hidden;
             text-decoration: none;
             color: inherit;
             display: block;
             transition: transform 0.2s, box-shadow 0.2s;
         }
+
         .model-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transform: translateY(-4px);
         }
+
         .model-card img {
             width: 100%;
-            height: 150px;
+            height: 170px;
             object-fit: cover;
         }
+
         .model-info {
-            padding: 15px;
+            padding: 14px;
         }
+
         .model-info h3 {
             margin: 0 0 10px;
-            font-size: 1.1em;
+            font-size: 20px;
         }
+
         .model-meta {
-            font-size: 0.85em;
-            color: #666;
+            font-size: 13px;
+            color: var(--muted);
         }
+
         .model-meta p {
             margin: 5px 0;
         }
@@ -106,22 +208,26 @@
             display: none;
             position: fixed;
             z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background: rgba(45, 29, 13, 0.4);
             justify-content: center;
             align-items: center;
+            padding: 14px;
         }
+
+        .modal[style*="display: none"] {
+            display: none !important;
+        }
+
         .modal-content {
-            background-color: #fff;
+            background: #fffdf8;
+            border: 1px solid var(--line);
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
             width: 90%;
-            max-width: 400px;
+            max-width: 450px;
             text-align: center;
         }
         .modal-content h2 {
@@ -135,29 +241,32 @@
         .modal-actions button {
             padding: 10px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 999px;
             cursor: pointer;
             font-size: 1em;
-            margin: 0 10px;
+            margin: 0 6px;
             min-width: 100px;
+            font-family: inherit;
+            font-weight: 600;
         }
         #confirmLogoutBtn {
             background-color: #dc3545;
             color: white;
         }
         #cancelLogoutBtn {
-            background-color: #f0f0f0;
+            background-color: #f0e6d7;
         }
 
         /* Login Modal specific styles, if needed */
         #loginModal {
             display: none; /* Overridden by script */
             justify-content: center;
-            align-items: flex-start; /* Align to top to respect margin */
+              align-items: center;
         }
         #loginModal .modal-content {
-             margin: 15% auto;
-             position: relative; /* This is crucial for positioning the close button */
+               margin: 0;
+               position: relative;
+               max-width: 500px;
         }
         #loginModal .close-button {
             color: #aaa;
@@ -174,18 +283,18 @@
             cursor: pointer;
         }
         #loginModal .login-btn {
-            background-color: #007bff;
+            background: linear-gradient(130deg, var(--brand), var(--brand-deep));
             color: white;
-            border: 1px solid #007bff;
+            border: none;
         }
         #loginModal .register-btn {
             background-color: #fff;
-            color: #333;
-            border: 1px solid #ddd;
+            color: var(--ink);
+            border: 1px solid var(--line);
         }
         #loginModal .register-note {
             font-size: 0.9em;
-            color: #666;
+            color: var(--muted);
             margin-top: 5px;
         }
         #loginModal button {
@@ -197,17 +306,30 @@
             cursor: pointer;
             font-size: 1em;
             box-sizing: border-box;
+            font-family: inherit;
         }
         .tag-badge {
             padding: 3px 8px;
             border-radius: 12px;
             font-size: 0.8em;
             font-weight: bold;
-            color: #fff;
+            color: var(--accent);
             display: inline-block;
             margin-top: 5px;
-            background-color: #007bff;
+            background: rgba(43, 106, 98, 0.12);
+            border: 1px solid rgba(43, 106, 98, 0.25);
             margin-right: 5px;
+        }
+
+        @media (max-width: 760px) {
+            #filterForm {
+                grid-template-columns: 1fr;
+            }
+            .nav-links {
+                gap: 6px;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
         }
     </style>
 </head>
@@ -230,18 +352,24 @@
 </div>
 
 <div class="container">
-    <h1>站内模型</h1>
+    <section class="hero">
+        <h1>站内模型</h1>
+        <p>浏览当前公开展示的模型内容，可按上传时间与关键词快速筛选。</p>
+    </section>
     <div class="controls">
         <form id="filterForm" th:action="@{/home}" method="get">
-            <label for="sort">排序方式:</label>
-            <select id="sort" name="sort" onchange="document.getElementById('filterForm').submit();">
-                <option value="uploadTime,desc" th:selected="${sort.equalsIgnoreCase('uploadTime,desc')}">最新上传</option>
-                <option value="uploadTime,asc" th:selected="${sort.equalsIgnoreCase('uploadTime,asc')}">最早上传</option>
-            </select>
-
-                        <label for="search" style="margin-left: 20px;">搜索:</label>
-            <input id="search" type="text" name="search" placeholder="模型、作者或标签..." th:value="${search}" style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
-            <button type="submit" style="padding: 8px 15px; cursor: pointer; border: 1px solid #ddd; background-color: #fff; border-radius: 20px;">搜索</button>
+            <div>
+                <label for="sort">排序方式</label>
+                <select id="sort" name="sort" onchange="document.getElementById('filterForm').submit();">
+                    <option value="uploadTime,desc" th:selected="${sort.equalsIgnoreCase('uploadTime,desc')}">最新上传</option>
+                    <option value="uploadTime,asc" th:selected="${sort.equalsIgnoreCase('uploadTime,asc')}">最早上传</option>
+                </select>
+            </div>
+            <div>
+                <label for="search">搜索</label>
+                <input id="search" type="text" name="search" placeholder="模型、作者或标签..." th:value="${search}">
+            </div>
+            <button type="submit">搜索</button>
         </form>
     </div>
 
@@ -303,7 +431,7 @@
         };
 
         document.getElementById('cancelLogoutBtn').onclick = () => modal.style.display = 'none';
-        window.onclick = (event) => {
+        modal.onclick = (event) => {
             if (event.target === modal) {
                 modal.style.display = 'none';
             }
@@ -327,7 +455,7 @@
                 }
             }
 
-            window.onclick = function(event) {
+            modal.onclick = function(event) {
                 if (event.target === modal) {
                     modal.style.display = 'none';
                     sessionStorage.setItem('hasSeenLoginModal', 'true');
